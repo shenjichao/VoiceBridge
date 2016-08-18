@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <!-- 顶部 -->
+
+    <include
+        android:id="@+id/hp_include_main_top"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_alignParentTop="true"
+        layout="@layout/hp_view_activity_top" />
+    <!-- 顶部 end -->
+
+
+    <!-- 内容 -->
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/hp_include_main_top"
+        android:layout_centerInParent="true"
+        android:background="@drawable/hp_bg_activity" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/hp_tv_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="这里将显示说话的内容"
+                android:textColor="@color/ut_activity_font_color_green" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical" >
+
+                <Button
+                    android:id="@+id/hp_btn_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/hp_bg_button_selector"
+                    android:text="开始"
+                    android:textColor="@color/ut_activity_font_color_white"
+                    android:textSize="@dimen/ut_font_size_20" />
+
+                <Button
+                    android:id="@+id/hp_btn_cancel"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/hp_bg_button_selector"
+                    android:text="取消"
+                    android:textColor="@color/ut_activity_font_color_white"
+                    android:textSize="@dimen/ut_font_size_20" />
+            </LinearLayout>
+
+            <com.hp.voice.widget.UTGridView
+                android:id="@+id/hp_gv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:cacheColorHint="#00000000"
+                android:fadeScrollbars="true"
+                android:fastScrollEnabled="true"
+                android:gravity="center"
+                android:horizontalSpacing="0dp"
+                android:listSelector="@null"
+                android:numColumns="5"
+                android:scrollbars="none"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="0dp" />
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>
