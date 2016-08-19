@@ -96,56 +96,55 @@ public class HPMainActivity extends Activity implements OnClickListener {
 		m_tvContent = (TextView) findViewById(R.id.hp_tv_content);
 		m_gv = (UTGridView) findViewById(R.id.hp_gv);
 
-		// m_datas.clear();
-		// // 1. 小一
-		// Map<String, Object> x1Map = new HashMap<String, Object>();
-		// x1Map.put("name", R.drawable.xy);
-		// m_datas.add(x1Map);
-		// // 2. 大一
-		// Map<String, Object> d1Map = new HashMap<String, Object>();
-		// d1Map.put("name", R.drawable.dy);
-		// m_datas.add(d1Map);
-		// // 3. 小二
-		// Map<String, Object> x2Map = new HashMap<String, Object>();
-		// x2Map.put("name", R.drawable.xe);
-		// m_datas.add(x2Map);
-		// // 4. 大二
-		// Map<String, Object> d2Map = new HashMap<String, Object>();
-		// d2Map.put("name", R.drawable.de);
-		// m_datas.add(d2Map);
-		// // 5. 小三
-		// Map<String, Object> x3Map = new HashMap<String, Object>();
-		// x3Map.put("name", R.drawable.xs);
-		// m_datas.add(x3Map);
-		// // 6. 大三
-		// Map<String, Object> d3Map = new HashMap<String, Object>();
-		// d3Map.put("name", R.drawable.ds);
-		// m_datas.add(d3Map);
-		// // 7. 小四
-		// Map<String, Object> x4Map = new HashMap<String, Object>();
-		// x4Map.put("name", R.drawable.xs);
-		// m_datas.add(x4Map);
-		// // 8. 大四
-		// Map<String, Object> d4Map = new HashMap<String, Object>();
-		// d4Map.put("name", R.drawable.ds);
-		// m_datas.add(d4Map);
-		// // 9. 小五
-		// Map<String, Object> x5Map = new HashMap<String, Object>();
-		// x5Map.put("name", R.drawable.xw);
-		// m_datas.add(x5Map);
-		// // 10. 大五
-		// Map<String, Object> d5Map = new HashMap<String, Object>();
-		// d5Map.put("name", R.drawable.dw);
-		// m_datas.add(d5Map);
-		// // 11. 小六
-		// Map<String, Object> x6Map = new HashMap<String, Object>();
-		// x6Map.put("name", R.drawable.xl);
-		// m_datas.add(x6Map);
-		//
-		// SimpleAdapter simpleAdapter = new SimpleAdapter(m_ctx, m_datas,
-		// R.layout.hp_view_gridview,
-		// new String[] { "name" }, new int[] { R.id.hp_iv_gridview_icon });
-		// m_gv.setAdapter(simpleAdapter);
+		m_datas.clear();
+		// 1. 小一
+		Map<String, Object> x1Map = new HashMap<String, Object>();
+		x1Map.put("name", R.drawable.x_1);
+		m_datas.add(x1Map);
+		// 2. 大一
+		Map<String, Object> d1Map = new HashMap<String, Object>();
+		d1Map.put("name", R.drawable.d_1);
+		m_datas.add(d1Map);
+		// 3. 小二
+		Map<String, Object> x2Map = new HashMap<String, Object>();
+		x2Map.put("name", R.drawable.x_2);
+		m_datas.add(x2Map);
+		// 4. 大二
+		Map<String, Object> d2Map = new HashMap<String, Object>();
+		d2Map.put("name", R.drawable.d_2);
+		m_datas.add(d2Map);
+		// 5. 小三
+		Map<String, Object> x3Map = new HashMap<String, Object>();
+		x3Map.put("name", R.drawable.x_3);
+		m_datas.add(x3Map);
+		// 6. 大三
+		Map<String, Object> d3Map = new HashMap<String, Object>();
+		d3Map.put("name", R.drawable.d_3);
+		m_datas.add(d3Map);
+		// 7. 小四
+		Map<String, Object> x4Map = new HashMap<String, Object>();
+		x4Map.put("name", R.drawable.x_4);
+		m_datas.add(x4Map);
+		// 8. 大四
+		Map<String, Object> d4Map = new HashMap<String, Object>();
+		d4Map.put("name", R.drawable.d_4);
+		m_datas.add(d4Map);
+		// 9. 小五
+		Map<String, Object> x5Map = new HashMap<String, Object>();
+		x5Map.put("name", R.drawable.x_5);
+		m_datas.add(x5Map);
+		// 10. 大五
+		Map<String, Object> d5Map = new HashMap<String, Object>();
+		d5Map.put("name", R.drawable.d_5);
+		m_datas.add(d5Map);
+		// 11. 小六
+		Map<String, Object> x6Map = new HashMap<String, Object>();
+		x6Map.put("name", R.drawable.x_6);
+		m_datas.add(x6Map);
+
+		SimpleAdapter simpleAdapter = new SimpleAdapter(m_ctx, m_datas, R.layout.hp_view_gridview,
+				new String[] { "name" }, new int[] { R.id.hp_iv_gridview_icon });
+		m_gv.setAdapter(simpleAdapter);
 	}
 
 	@Override
@@ -253,93 +252,134 @@ public class HPMainActivity extends Activity implements OnClickListener {
 					Log.d(TAG, "result >> " + result);
 					i += 2;
 
-//					if (result.contains("小一") || result.contains("小姨") || result.contains("小1") || result.contains("1")) {
-//						Map<String, Object> x1Map = new HashMap<String, Object>();
-//						x1Map.put("name", R.drawable.xy);
-//						m_datas.add(x1Map);
-//					} else if (result.contains("大一") || result.contains("大衣") || result.contains("大姨")
-//							|| result.contains("大1")) {
-//						Map<String, Object> d1Map = new HashMap<String, Object>();
-//						d1Map.put("name", R.drawable.dy);
-//						m_datas.add(d1Map);
-//					} else if (result.contains("小二") || result.contains("小2") || result.contains("2")) {
-//						Map<String, Object> x2Map = new HashMap<String, Object>();
-//						x2Map.put("name", R.drawable.xe);
-//						m_datas.add(x2Map);
-//					} else if (result.contains("大二") || result.contains("大2")) {
-//						Map<String, Object> d2Map = new HashMap<String, Object>();
-//						d2Map.put("name", R.drawable.de);
-//						m_datas.add(d2Map);
-//					} else if (result.contains("小三") || result.contains("小3") || result.contains("3")) {
-//						Map<String, Object> x3Map = new HashMap<String, Object>();
-//						x3Map.put("name", R.drawable.xs);
-//						m_datas.add(x3Map);
-//					} else if (result.contains("大三") || result.contains("大3")) {
-//						Map<String, Object> d3Map = new HashMap<String, Object>();
-//						d3Map.put("name", R.drawable.ds);
-//						m_datas.add(d3Map);
-//					} else if (result.contains("小四") || result.contains("小事")|| result.contains("小4") || result.contains("4")) {
-//						Map<String, Object> x4Map = new HashMap<String, Object>();
-//						x4Map.put("name", R.drawable.xsi);
-//						m_datas.add(x4Map);
-//					} else if (result.contains("大四") || result.contains("大事") || result.contains("大4")) {
-//						Map<String, Object> d4Map = new HashMap<String, Object>();
-//						d4Map.put("name", R.drawable.dsi);
-//						m_datas.add(d4Map);
-//					} else if (result.contains("小五") || result.contains("小5") || result.contains("5")) {
-//						Map<String, Object> x5Map = new HashMap<String, Object>();
-//						x5Map.put("name", R.drawable.xw);
-//						m_datas.add(x5Map);
-//					} else if (result.contains("大五") || result.contains("大5")) {
-//						Map<String, Object> d5Map = new HashMap<String, Object>();
-//						d5Map.put("name", R.drawable.dw);
-//						m_datas.add(d5Map);
-//					} else if (result.contains("小六") || result.contains("小6") || result.contains("6")) {
-//						Map<String, Object> x6Map = new HashMap<String, Object>();
-//						x6Map.put("name", R.drawable.xl);
-//						m_datas.add(x6Map);
-//					} else if (result.contains("大六") || result.contains("大6")) {
-//						Map<String, Object> d6Map = new HashMap<String, Object>();
-//						d6Map.put("name", R.drawable.dl);
-//						m_datas.add(d6Map);
-//					} else if (result.contains("小七") || result.contains("小7") || result.contains("7")) {
-//						Map<String, Object> x7Map = new HashMap<String, Object>();
-//						x7Map.put("name", R.drawable.xq);
-//						m_datas.add(x7Map);
-//					} else if (result.contains("大七") || result.contains("大7")) {
-//						Map<String, Object> d7Map = new HashMap<String, Object>();
-//						d7Map.put("name", R.drawable.dq);
-//						m_datas.add(d7Map);
-//					} else if (result.contains("小八") || result.contains("小巴") || result.contains("小8")
-//							|| result.contains("8")) {
-//						Map<String, Object> x8Map = new HashMap<String, Object>();
-//						x8Map.put("name", R.drawable.xb);
-//						m_datas.add(x8Map);
-//					} else if (result.contains("大八") || result.contains("大巴") || result.contains("大8")) {
-//						Map<String, Object> d8Map = new HashMap<String, Object>();
-//						d8Map.put("name", R.drawable.db);
-//						m_datas.add(d8Map);
-//					} else if (result.contains("小九") || result.contains("小舅") || result.contains("小酒")
-//							|| result.contains("小9") || result.contains("9")) {
-//						Map<String, Object> x9Map = new HashMap<String, Object>();
-//						x9Map.put("name", R.drawable.xj);
-//						m_datas.add(x9Map);
-//					} else if (result.contains("大九") || result.contains("大舅") || result.contains("大酒")
-//							|| result.contains("大9")) {
-//						Map<String, Object> d9Map = new HashMap<String, Object>();
-//						d9Map.put("name", R.drawable.dj);
-//						m_datas.add(d9Map);
-//					} else if (result.contains("小十") || result.contains("小时") || result.contains("小事")
-//							|| result.contains("小10") || result.contains("10")) {
-//						Map<String, Object> x10Map = new HashMap<String, Object>();
-//						x10Map.put("name", R.drawable.xshi);
-//						m_datas.add(x10Map);
-//					} else if (result.contains("大十") || result.contains("大师") || result.contains("大事")
-//							|| result.contains("大10")) {
-//						Map<String, Object> d10Map = new HashMap<String, Object>();
-//						d10Map.put("name", R.drawable.dshi);
-//						m_datas.add(d10Map);
-//					}
+					// if (result.contains("小一") || result.contains("小姨") ||
+					// result.contains("小1") || result.contains("1")) {
+					// Map<String, Object> x1Map = new HashMap<String,
+					// Object>();
+					// x1Map.put("name", R.drawable.xy);
+					// m_datas.add(x1Map);
+					// } else if (result.contains("大一") || result.contains("大衣")
+					// || result.contains("大姨")
+					// || result.contains("大1")) {
+					// Map<String, Object> d1Map = new HashMap<String,
+					// Object>();
+					// d1Map.put("name", R.drawable.dy);
+					// m_datas.add(d1Map);
+					// } else if (result.contains("小二") || result.contains("小2")
+					// || result.contains("2")) {
+					// Map<String, Object> x2Map = new HashMap<String,
+					// Object>();
+					// x2Map.put("name", R.drawable.xe);
+					// m_datas.add(x2Map);
+					// } else if (result.contains("大二") ||
+					// result.contains("大2")) {
+					// Map<String, Object> d2Map = new HashMap<String,
+					// Object>();
+					// d2Map.put("name", R.drawable.de);
+					// m_datas.add(d2Map);
+					// } else if (result.contains("小三") || result.contains("小3")
+					// || result.contains("3")) {
+					// Map<String, Object> x3Map = new HashMap<String,
+					// Object>();
+					// x3Map.put("name", R.drawable.xs);
+					// m_datas.add(x3Map);
+					// } else if (result.contains("大三") ||
+					// result.contains("大3")) {
+					// Map<String, Object> d3Map = new HashMap<String,
+					// Object>();
+					// d3Map.put("name", R.drawable.ds);
+					// m_datas.add(d3Map);
+					// } else if (result.contains("小四") ||
+					// result.contains("小事")|| result.contains("小4") ||
+					// result.contains("4")) {
+					// Map<String, Object> x4Map = new HashMap<String,
+					// Object>();
+					// x4Map.put("name", R.drawable.xsi);
+					// m_datas.add(x4Map);
+					// } else if (result.contains("大四") || result.contains("大事")
+					// || result.contains("大4")) {
+					// Map<String, Object> d4Map = new HashMap<String,
+					// Object>();
+					// d4Map.put("name", R.drawable.dsi);
+					// m_datas.add(d4Map);
+					// } else if (result.contains("小五") || result.contains("小5")
+					// || result.contains("5")) {
+					// Map<String, Object> x5Map = new HashMap<String,
+					// Object>();
+					// x5Map.put("name", R.drawable.xw);
+					// m_datas.add(x5Map);
+					// } else if (result.contains("大五") ||
+					// result.contains("大5")) {
+					// Map<String, Object> d5Map = new HashMap<String,
+					// Object>();
+					// d5Map.put("name", R.drawable.dw);
+					// m_datas.add(d5Map);
+					// } else if (result.contains("小六") || result.contains("小6")
+					// || result.contains("6")) {
+					// Map<String, Object> x6Map = new HashMap<String,
+					// Object>();
+					// x6Map.put("name", R.drawable.xl);
+					// m_datas.add(x6Map);
+					// } else if (result.contains("大六") ||
+					// result.contains("大6")) {
+					// Map<String, Object> d6Map = new HashMap<String,
+					// Object>();
+					// d6Map.put("name", R.drawable.dl);
+					// m_datas.add(d6Map);
+					// } else if (result.contains("小七") || result.contains("小7")
+					// || result.contains("7")) {
+					// Map<String, Object> x7Map = new HashMap<String,
+					// Object>();
+					// x7Map.put("name", R.drawable.xq);
+					// m_datas.add(x7Map);
+					// } else if (result.contains("大七") ||
+					// result.contains("大7")) {
+					// Map<String, Object> d7Map = new HashMap<String,
+					// Object>();
+					// d7Map.put("name", R.drawable.dq);
+					// m_datas.add(d7Map);
+					// } else if (result.contains("小八") || result.contains("小巴")
+					// || result.contains("小8")
+					// || result.contains("8")) {
+					// Map<String, Object> x8Map = new HashMap<String,
+					// Object>();
+					// x8Map.put("name", R.drawable.xb);
+					// m_datas.add(x8Map);
+					// } else if (result.contains("大八") || result.contains("大巴")
+					// || result.contains("大8")) {
+					// Map<String, Object> d8Map = new HashMap<String,
+					// Object>();
+					// d8Map.put("name", R.drawable.db);
+					// m_datas.add(d8Map);
+					// } else if (result.contains("小九") || result.contains("小舅")
+					// || result.contains("小酒")
+					// || result.contains("小9") || result.contains("9")) {
+					// Map<String, Object> x9Map = new HashMap<String,
+					// Object>();
+					// x9Map.put("name", R.drawable.xj);
+					// m_datas.add(x9Map);
+					// } else if (result.contains("大九") || result.contains("大舅")
+					// || result.contains("大酒")
+					// || result.contains("大9")) {
+					// Map<String, Object> d9Map = new HashMap<String,
+					// Object>();
+					// d9Map.put("name", R.drawable.dj);
+					// m_datas.add(d9Map);
+					// } else if (result.contains("小十") || result.contains("小时")
+					// || result.contains("小事")
+					// || result.contains("小10") || result.contains("10")) {
+					// Map<String, Object> x10Map = new HashMap<String,
+					// Object>();
+					// x10Map.put("name", R.drawable.xshi);
+					// m_datas.add(x10Map);
+					// } else if (result.contains("大十") || result.contains("大师")
+					// || result.contains("大事")
+					// || result.contains("大10")) {
+					// Map<String, Object> d10Map = new HashMap<String,
+					// Object>();
+					// d10Map.put("name", R.drawable.dshi);
+					// m_datas.add(d10Map);
+					// }
 				}
 			}
 

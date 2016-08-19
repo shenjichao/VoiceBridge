@@ -13,15 +13,14 @@ import android.view.WindowManager;
 
 public class CardActivity extends Activity {
 	/*
-
 	 * 转载此程序须保留版权,未经作者允许不能用作商业用途!
 	 * */
 	CardView myView;
 	String messString;
 	Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
-			if(msg.what==0){
-				messString=msg.getData().getString("data");
+			if (msg.what == 0) {
+				messString = msg.getData().getString("data");
 				showDialog();
 			}
 		}
@@ -34,14 +33,14 @@ public class CardActivity extends Activity {
 		// 隐藏标题栏
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		// 隐藏状态栏
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		// 锁定横屏
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		myView = new CardView(this,handler);
+		myView = new CardView(this, handler);
 		setContentView(myView);
 	}
-	public void showDialog(){
+
+	public void showDialog() {
 		new AlertDialog.Builder(this).setMessage(messString)
 				.setPositiveButton("重新开始游戏", new DialogInterface.OnClickListener() {
 
@@ -52,9 +51,10 @@ public class CardActivity extends Activity {
 					}
 				}).setTitle("By:小柒,QQ:361106306").create().show();
 	}
-	//重新开始游戏
-	public void reGame(){
-		myView = new CardView(this,handler);
+
+	// 重新开始游戏
+	public void reGame() {
+		myView = new CardView(this, handler);
 		setContentView(myView);
 	}
 

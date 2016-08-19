@@ -14,8 +14,8 @@
 
         <ImageView
             android:id="@+id/hp_iv_gridview_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_centerHorizontal="true"
             android:contentDescription="@null"
             android:scaleType="fitXY" />
