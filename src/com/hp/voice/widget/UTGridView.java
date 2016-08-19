@@ -1,11 +1,11 @@
-﻿package com.hp.voice.widget;
+package com.hp.voice.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.GridView;
 
 /**
- * 
+ *
  * @author shenjichao@untech.com.cn
  *
  */

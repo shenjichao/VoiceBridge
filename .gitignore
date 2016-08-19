@@ -124,3 +124,8 @@ bin/res/crunch/drawable-hdpi/setting.png
 bin/res/crunch/drawable-mdpi/hp_ic_launcher.png
 
 bin/res/crunch/drawable-xhdpi/hp_bg_activity.png
+.idea/
+VoiceBridge.iml
+bin/classes/VoiceBridge.apk
+bin/
+gen/
