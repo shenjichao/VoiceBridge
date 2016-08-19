@@ -14,14 +14,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import com.hp.voice.R;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Random;
-import java.util.Vector;
+import java.util.*;
 
 /*
- * QQ:361106306
- * by:小柒
+
  * 转载此程序须保留版权,未经作者允许不能用作商业用途!
  * */
 public class CardView extends SurfaceView implements SurfaceHolder.Callback,
@@ -55,8 +51,10 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 	// List
 	List<Card> playerList[]=new Vector[3];
 
-	List<LinkedHashMap<Integer,Card>> playerListMap = new Vector<LinkedHashMap<Integer,Card>>();
 
+	LinkedHashMap<Integer,Vector<Card>> playerCardMap1 = new LinkedHashMap<Integer,Vector<Card>>();
+	LinkedHashMap<Integer,Vector<Card>> playerCardMap2 = new LinkedHashMap<Integer,Vector<Card>>();
+	LinkedHashMap<Integer,Vector<Card>> playerCardMap3 = new LinkedHashMap<Integer,Vector<Card>>();
 
 	//地主牌
 	List<Card> dizhuList=new Vector<Card>();
@@ -99,6 +97,8 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 		cardWidth=card[0].width;
 		cardHeight=card[0].height;
 
+
+
 		//背景
 		bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.bg);
 		cardBgBitmap= BitmapFactory.decodeResource(getResources(), R.drawable.cardbg1);
@@ -122,6 +122,8 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 			card[count] = new Card(cardBitmap[count].getWidth(),cardBitmap[count].getHeight(), cardBitmap[count]);
 			//设置Card的名字
 			card[count].setName(name);
+			//设置Card的值
+			card[count].value = j;
 			count++;
 		}
 	}
@@ -133,13 +135,55 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 		canvas.drawBitmap(bgBitmap, src, dst, null);
 	}
 	// 玩家牌
-	public void drawPlayer(int player){
-		if(playerList[player]!=null&&playerList[player].size()>0)
-		{
-			for(Card card:playerList[player])
+	public void drawPlayer(){
+		drawLeftPlayer();
+		drawRightPlayer();
+		drawCenterPlayer();
+	}
+
+	private void drawCenterPlayer() {
+		//画中间的
+		int i = 0  ;
+		for(Map.Entry<Integer,Vector<Card>> entry : playerCardMap3.entrySet()){
+			int j = 0;
+			for(Card card : entry.getValue()){
+				card.setLocation(screen_width/2-(5-i)*cardWidth,screen_height-cardHeight*(j+1));
 				drawCard(card);
+				j ++;
+			}
+			i++;
 		}
 	}
+
+	private void drawRightPlayer() {
+		//画右边的
+		int i = 0  ;
+		for(Map.Entry<Integer,Vector<Card>> entry : playerCardMap2.entrySet()){
+			int j = 0;
+			for(Card card : entry.getValue()){
+				card.setLocation(screen_width-(cardWidth + j*(cardWidth + 10)),i*(cardHeight+10));
+				drawCard(card);
+				j ++;
+			}
+			i++;
+		}
+	}
+
+	private void drawLeftPlayer() {
+		//画左边的
+		int i = 0  ;
+		for(Map.Entry<Integer,Vector<Card>> entry : playerCardMap1.entrySet()){
+			int j = 0;
+			for(Card card : entry.getValue()){
+				card.setLocation(cardWidth/2 + j*(cardWidth + 10),i*(cardHeight + 10));
+				drawCard(card);
+				j ++;
+			}
+			i++;
+		}
+	}
+
+
 	//画牌
 	public void drawCard(Card card){
 		Bitmap tempbitBitmap;
@@ -173,17 +217,24 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 					//左边玩家
 					card[i].setLocation(cardWidth/2,i/3*cardHeight);
 					playerList[0].add(card[i]);
+
+					addToPlayMap1(card[i]);
+
 					break;
 				case 1:
 					//我
 					card[i].setLocation(screen_width/2-(10-i/3)*cardWidth*1 + 1,screen_height-cardHeight);
 					card[i].rear=false;//翻开
 					playerList[1].add(card[i]);
+
+					addToPlayMap2(card[i]);
 					break;
 				case 2:
 					//右边玩家
 					card[i].setLocation(screen_width-3*cardWidth/2,i/3*cardHeight);
 					playerList[2].add(card[i]);
+
+					addToPlayMap3(card[i]);
 					break;
 			}
 			update();
@@ -194,6 +245,37 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 		hideButton=false;
 		update();
 	}
+
+	private void addToPlayMap1(Card card) {
+		if(playerCardMap1.containsKey(card.value)){
+            playerCardMap1.get(card.value).add(card);
+        }else {
+            Vector<Card> vector = new Vector<>();
+            vector.add(card);
+            playerCardMap1.put(card.value,vector);
+        }
+	}
+
+	private void addToPlayMap2(Card card) {
+		if(playerCardMap2.containsKey(card.value)){
+			playerCardMap2.get(card.value).add(card);
+		}else {
+			Vector<Card> vector = new Vector<>();
+			vector.add(card);
+			playerCardMap2.put(card.value,vector);
+		}
+	}
+
+	private void addToPlayMap3(Card card) {
+		if(playerCardMap3.containsKey(card.value)){
+			playerCardMap3.get(card.value).add(card);
+		}else {
+			Vector<Card> vector = new Vector<>();
+			vector.add(card);
+			playerCardMap3.put(card.value,vector);
+		}
+	}
+
 	//sleep();
 	public void Sleep(long i){
 		try {
@@ -260,8 +342,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 				// 画背景
 				drawBackground();
 				// 画牌
-				for(int i=0;i<3;i++)
-					drawPlayer(i);
+				drawPlayer();
 				// 地主牌
 				for(int i=0,len=dizhuList.size();i<len;i++)
 					drawCard(dizhuList.get(i));

@@ -4,8 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 
 /*
- * QQ:361106306
- * by:小柒
+
  * 转载此程序须保留版权,未经作者允许不能用作商业用途!
  * */
 public class Card {
@@ -15,6 +14,7 @@ public class Card {
 	public int height;   //高度
 	public Bitmap bitmap;//图片
 	public String name; //Card的名称
+	public int value; //card的数值
 	public boolean rear=true;//是否是背面
 	public boolean clicked=false;//是否被点击
 	public Card(int width, int height, Bitmap bitmap){

@@ -13,8 +13,7 @@ import android.view.WindowManager;
 
 public class CardActivity extends Activity {
 	/*
-	 * QQ:361106306
-	 * by:小柒
+
 	 * 转载此程序须保留版权,未经作者允许不能用作商业用途!
 	 * */
 	CardView myView;
@@ -48,7 +47,7 @@ public class CardActivity extends Activity {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
+
 						reGame();
 					}
 				}).setTitle("By:小柒,QQ:361106306").create().show();
