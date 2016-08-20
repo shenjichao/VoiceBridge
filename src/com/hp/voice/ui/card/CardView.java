@@ -13,6 +13,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import com.hp.voice.R;
+import com.iflytek.thirdparty.P;
 
 import java.util.*;
 
@@ -22,6 +23,24 @@ import java.util.*;
  * */
 public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 		Runnable {
+
+	public final static int inSampleSize = 4; //图片缩小倍数
+
+	public final static int PADDING_TOP = 10;
+	public final static int PADDING_LEFT = 5;
+	public final static int PADDING_RIGHT = 5;
+	public final static int PADDING_BOTTOM = 10;
+
+	public final static int CELL_NUM = 10;//横向格子数目   要求双数  单数会有问题
+	public final static int CELL_NUM_RED = 4;//红色竖向数
+	public final static int CELL_NUM_GREEN = 1;//绿色竖向数
+	public final static int CELL_NUM_BLUE = 1;//蓝色竖向数
+
+	public final static int CELL_CARD_PADDING = 4;//格子和牌的间隔
+
+	//每个 格子 宽高
+	int cell_height;
+	int cell_width;
 
 	SurfaceHolder surfaceHolder;
 	Canvas canvas;
@@ -43,6 +62,9 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 
 	// 牌对象
 	Card card[] = new Card[80];
+
+	//画笔
+	private Paint paint;
 	//按钮
 	String buttonText[]=new String[2];
 	//提示
@@ -97,12 +119,15 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 		cardWidth=card[0].width;
 		cardHeight=card[0].height;
 
+		cell_height = cardWidth+CELL_CARD_PADDING;
+		cell_width = cardHeight+CELL_CARD_PADDING;
 
 
 		//背景
 		bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.bg);
 		cardBgBitmap= BitmapFactory.decodeResource(getResources(), R.drawable.cardbg1);
 
+		paint = new Paint();
 
 	}
 
@@ -116,7 +141,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 
 			//图片宽高压缩
 			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inSampleSize = 3;//图片宽高都为原来的二分之一，即图片为原来的四分之一
+			options.inSampleSize = inSampleSize;//图片宽高都为原来的二分之一，即图片为原来的四分之一
 			cardBitmap[count] = BitmapFactory.decodeResource(getResources(),id,options);
 
 			card[count] = new Card(cardBitmap[count].getWidth(),cardBitmap[count].getHeight(), cardBitmap[count]);
@@ -134,6 +159,203 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 		Rect dst = new Rect(0, 0, screen_width, screen_height);
 		canvas.drawBitmap(bgBitmap, src, dst, null);
 	}
+
+	//画背景格
+	public void drawBackgroundRect() {
+		drawBackgroundRectLeft();
+
+		drawBackgroundRectCenter();
+		drawBackgroundRectRight();
+	}
+
+	public void drawBackgroundRectLeft() {
+
+		//画红色矩形
+		paint.setStyle(Style.FILL);//实心矩形框
+		paint.setColor(Color.RED);
+		Rect dst = new Rect(
+				PADDING_LEFT,
+				PADDING_TOP,
+				PADDING_LEFT + cell_width * CELL_NUM_RED,
+				PADDING_TOP + CELL_NUM * cell_height
+		);
+		canvas.drawRect(dst, paint);
+
+		//画绿色矩形
+		paint.setStyle(Style.FILL);//实心矩形框
+		paint.setColor(Color.GREEN);
+		dst = new Rect(
+				PADDING_LEFT + cell_width * CELL_NUM_RED,
+				PADDING_TOP,
+				PADDING_LEFT + cell_width * CELL_NUM_RED + cell_width * CELL_NUM_GREEN,
+				PADDING_TOP + CELL_NUM * cell_height
+		);
+		canvas.drawRect(dst, paint);
+
+
+		//画蓝色矩形
+		paint.setStyle(Style.FILL);//实心矩形框
+		paint.setColor(Color.BLUE);
+		dst = new Rect(
+				PADDING_LEFT + cell_width * CELL_NUM_RED + cell_width * CELL_NUM_GREEN,
+				PADDING_TOP,
+				PADDING_LEFT + cell_width * CELL_NUM_RED + cell_width * CELL_NUM_GREEN + cell_width * CELL_NUM_BLUE,
+				PADDING_TOP + CELL_NUM * cell_height
+		);
+		canvas.drawRect(dst, paint);
+
+
+		//画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
+		paint.setColor(Color.BLACK);
+
+		// 竖线
+		for(int i = 0 ; i < CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE ; i++){
+			canvas.drawLine(
+					PADDING_LEFT + i * cell_width,
+					PADDING_TOP ,
+					PADDING_LEFT + i * cell_width,
+					PADDING_TOP + CELL_NUM * cell_height,
+					paint
+			);
+		}
+
+		//横线
+		for(int i = 0 ; i < CELL_NUM ; i++){
+			canvas.drawLine(
+					PADDING_LEFT ,
+					PADDING_TOP + i * cell_height,
+					PADDING_LEFT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * cell_width,
+					PADDING_TOP + i * cell_height,
+					paint
+			);
+		}
+
+	}
+
+	public void drawBackgroundRectCenter() {
+		//画红色矩形
+		paint.setStyle(Style.FILL);//实心矩形框
+		paint.setColor(Color.RED);
+		Rect dst = new Rect(
+				screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0),
+				screen_height - (PADDING_BOTTOM + (CELL_NUM_RED) * cell_height) ,
+				screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
+				screen_height - PADDING_BOTTOM
+		);
+		canvas.drawRect(dst, paint);
+
+		//画绿色矩形
+		paint.setStyle(Style.FILL);//实心矩形框
+		paint.setColor(Color.GREEN);
+		dst = new Rect(
+				screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0),
+				screen_height - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN)  * cell_height),
+				screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
+				screen_height - (PADDING_BOTTOM + cell_height * CELL_NUM_RED)
+		);
+		canvas.drawRect(dst, paint);
+
+
+		//画蓝色矩形
+		paint.setStyle(Style.FILL);//实心矩形框
+		paint.setColor(Color.BLUE);
+		dst = new Rect(
+				screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0),
+				screen_height - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE)  * cell_height),
+				screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
+				screen_height - (PADDING_BOTTOM + cell_height * (CELL_NUM_RED + CELL_NUM_GREEN))
+		);
+		canvas.drawRect(dst, paint);
+
+
+		//画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
+		paint.setColor(Color.BLACK);
+
+		// 竖线
+		for(int i = 0 ; i < CELL_NUM ; i++){
+			canvas.drawLine(
+					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0) + i * cell_width,
+					screen_height - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE)  * cell_height) ,
+					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0) + i * cell_width,
+					screen_height -PADDING_BOTTOM,
+					paint
+			);
+		}
+
+		//横线
+		for(int i = 0 ; i <  CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE; i++){
+			canvas.drawLine(
+					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0)  ,
+					screen_height - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE)  * cell_height) + i * cell_height,
+					screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
+					screen_height - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE)  * cell_height) + i * cell_height,
+					paint
+			);
+		}
+	}
+
+	public void drawBackgroundRectRight() {
+		//画红色矩形
+		paint.setStyle(Style.FILL);//实心矩形框
+		paint.setColor(Color.RED);
+		Rect dst = new Rect(
+				screen_width - (PADDING_RIGHT + CELL_NUM_RED * cell_width) ,
+				PADDING_TOP,
+				screen_width - PADDING_RIGHT ,
+				PADDING_TOP + CELL_NUM * cell_height
+		);
+		canvas.drawRect(dst, paint);
+
+		//画绿色矩形
+		paint.setStyle(Style.FILL);//实心矩形框
+		paint.setColor(Color.GREEN);
+		dst = new Rect(
+				screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN) * cell_width),
+				PADDING_TOP,
+				screen_width - (PADDING_RIGHT + CELL_NUM_RED * cell_width),
+				PADDING_TOP + CELL_NUM * cell_height
+		);
+		canvas.drawRect(dst, paint);
+
+
+		//画蓝色矩形
+		paint.setStyle(Style.FILL);//实心矩形框
+		paint.setColor(Color.BLUE);
+		dst = new Rect(
+				screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * cell_width),
+				PADDING_TOP,
+				screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN) * cell_width),
+				PADDING_TOP + CELL_NUM * cell_height
+		);
+		canvas.drawRect(dst, paint);
+
+
+		//画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
+		paint.setColor(Color.BLACK);
+
+		// 竖线
+		for(int i = 0 ; i < CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE ; i++){
+			canvas.drawLine(
+					screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * cell_width) + i * cell_width ,
+					PADDING_TOP ,
+					screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * cell_width) + i * cell_width ,
+					PADDING_TOP + CELL_NUM * cell_height,
+					paint
+			);
+		}
+
+		//横线
+		for(int i = 0 ; i < CELL_NUM ; i++){
+			canvas.drawLine(
+					screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * cell_width) ,
+					PADDING_TOP + i * cell_height,
+					screen_width - PADDING_RIGHT,
+					PADDING_TOP + i * cell_height,
+					paint
+			);
+		}
+	}
+
 	// 玩家牌
 	public void drawPlayer(){
 		drawLeftPlayer();
@@ -144,10 +366,12 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 	private void drawCenterPlayer() {
 		//画中间的
 		int i = 0  ;
-		for(Map.Entry<Integer,Vector<Card>> entry : playerCardMap3.entrySet()){
+		for(Map.Entry<Integer,Vector<Card>> entry : playerCardMap2.entrySet()){
 			int j = 0;
 			for(Card card : entry.getValue()){
-				card.setLocation(screen_width/2-(5-i)*cardWidth,screen_height-cardHeight*(j+1));
+				card.setLocation(
+						screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0) + i*(cardWidth + CELL_CARD_PADDING) + CELL_CARD_PADDING/2,
+						screen_height-((cardHeight + CELL_CARD_PADDING )*(j+1) + PADDING_BOTTOM - CELL_CARD_PADDING/2));
 				drawCard(card);
 				j ++;
 			}
@@ -158,10 +382,13 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 	private void drawRightPlayer() {
 		//画右边的
 		int i = 0  ;
-		for(Map.Entry<Integer,Vector<Card>> entry : playerCardMap2.entrySet()){
+		for(Map.Entry<Integer,Vector<Card>> entry : playerCardMap3.entrySet()){
 			int j = 0;
 			for(Card card : entry.getValue()){
-				card.setLocation(screen_width-(cardWidth + j*(cardWidth + 10)),i*(cardHeight+10));
+				card.setLocation(
+						screen_width-(cardWidth + CELL_CARD_PADDING/2 + j*(cardWidth + CELL_CARD_PADDING) + PADDING_RIGHT) ,
+						i*(cardHeight+CELL_CARD_PADDING)+CELL_CARD_PADDING/2+PADDING_TOP)
+				;
 				drawCard(card);
 				j ++;
 			}
@@ -175,7 +402,10 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 		for(Map.Entry<Integer,Vector<Card>> entry : playerCardMap1.entrySet()){
 			int j = 0;
 			for(Card card : entry.getValue()){
-				card.setLocation(cardWidth/2 + j*(cardWidth + 10),i*(cardHeight + 10));
+				card.setLocation(
+						PADDING_LEFT+CELL_CARD_PADDING/2+ j*(cardWidth+CELL_CARD_PADDING),
+						PADDING_TOP +CELL_CARD_PADDING/2 + i*(cardHeight+CELL_CARD_PADDING )
+				);
 				drawCard(card);
 				j ++;
 			}
@@ -202,7 +432,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 		}
 		for(int i=0;i<80;i++)
 		{
-			if(i>61)//底牌
+			if(i>60)//底牌
 			{
 				//放置底牌
 //				card[i].setLocation(screen_width/2-(3*i-155)*cardWidth/2,0);
@@ -214,14 +444,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 			}
 			switch ((t++)%3) {
 				case 0:
-					//左边玩家
-					card[i].setLocation(cardWidth/2,i/3*cardHeight);
-					playerList[0].add(card[i]);
 
-					addToPlayMap1(card[i]);
-
-					break;
-				case 1:
 					//我
 					card[i].setLocation(screen_width/2-(10-i/3)*cardWidth*1 + 1,screen_height-cardHeight);
 					card[i].rear=false;//翻开
@@ -229,12 +452,18 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 
 					addToPlayMap2(card[i]);
 					break;
-				case 2:
+				case 1:
 					//右边玩家
 					card[i].setLocation(screen_width-3*cardWidth/2,i/3*cardHeight);
 					playerList[2].add(card[i]);
 
 					addToPlayMap3(card[i]);
+					break;
+				case 2:
+					//左边玩家
+					card[i].setLocation(cardWidth/2,i/3*cardHeight);
+					playerList[0].add(card[i]);
+					addToPlayMap1(card[i]);
 					break;
 			}
 			update();
@@ -301,6 +530,8 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 		start=true;
 		screen_height = getHeight();
 		screen_width = getWidth();
+
+
 		// 初始化
 		InitBitMap();
 
@@ -341,6 +572,8 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 				canvas = surfaceHolder.lockCanvas();
 				// 画背景
 				drawBackground();
+				// 画背景方格
+				drawBackgroundRect();
 				// 画牌
 				drawPlayer();
 				// 地主牌
