@@ -35,6 +35,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 	public final static int CELL_NUM_RED = 4;//红色竖向数
 	public final static int CELL_NUM_GREEN = 1;//绿色竖向数
 	public final static int CELL_NUM_BLUE = 1;//蓝色竖向数
+	public final static int CELL_NUM_YELLOW = 2;//黄色竖向数
 
 	public final static int CELL_CARD_PADDING = 4;//格子和牌的间隔
 
@@ -78,7 +79,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 	LinkedHashMap<Integer,Vector<Card>> playerCardMap2 = new LinkedHashMap<Integer,Vector<Card>>();
 	LinkedHashMap<Integer,Vector<Card>> playerCardMap3 = new LinkedHashMap<Integer,Vector<Card>>();
 
-	//地主牌
+	//底牌
 	List<Card> dizhuList=new Vector<Card>();
 	//谁是地主
 	int dizhuFlag=-1;
@@ -166,6 +167,49 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 
 		drawBackgroundRectCenter();
 		drawBackgroundRectRight();
+
+		drawBackgroundRectTop();
+
+	}
+
+	public void drawBackgroundRectTop() {
+		//画红色矩形
+		paint.setStyle(Style.FILL);//实心矩形框
+		paint.setColor(Color.YELLOW);
+		Rect dst = new Rect(
+				screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0),
+				PADDING_TOP  ,
+				screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
+				PADDING_TOP + cell_height * 2
+		);
+		canvas.drawRect(dst, paint);
+
+
+
+		//画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
+		paint.setColor(Color.BLACK);
+
+		// 竖线
+		for(int i = 0 ; i < CELL_NUM ; i++){
+			canvas.drawLine(
+					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0) + i * cell_width,
+					PADDING_TOP ,
+					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0) + i * cell_width,
+					PADDING_TOP + cell_height * CELL_NUM_YELLOW,
+					paint
+			);
+		}
+
+		//横线
+		for(int i = 0 ; i <  CELL_NUM_YELLOW; i++){
+			canvas.drawLine(
+					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0),
+					PADDING_TOP + cell_height * i,
+					screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
+					PADDING_TOP + cell_height * i,
+					paint
+			);
+		}
 	}
 
 	public void drawBackgroundRectLeft() {
@@ -414,6 +458,23 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 	}
 
 
+
+	private void drawTopCard() {
+		//画头部的
+		for(int i=0,len=dizhuList.size();i<len;i++) {
+			if(i<10){
+				dizhuList.get(i).setLocation(screen_width/2-(5-i)*(cardWidth + CELL_CARD_PADDING) *1 + CELL_CARD_PADDING/2,PADDING_TOP +CELL_CARD_PADDING/2);
+				drawCard(dizhuList.get(i));
+			}else if(i<20){
+				dizhuList.get(i).setLocation(screen_width/2-((5-(i-10))*(cardWidth + CELL_CARD_PADDING))*1 + CELL_CARD_PADDING/2,PADDING_TOP + cardHeight + CELL_CARD_PADDING +CELL_CARD_PADDING/2);
+				drawCard(dizhuList.get(i));
+			}else {
+
+			}
+
+		}
+	}
+
 	//画牌
 	public void drawCard(Card card){
 		Bitmap tempbitBitmap;
@@ -437,7 +498,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 				//放置底牌
 //				card[i].setLocation(screen_width/2-(3*i-155)*cardWidth/2,0);
 				dizhuList.add(card[i]);
-				card[i].setLocation(screen_width/2-(10-dizhuList.size())*cardWidth*1 + 1,cardHeight);
+
 
 				update();
 				continue;
@@ -446,7 +507,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 				case 0:
 
 					//我
-					card[i].setLocation(screen_width/2-(10-i/3)*cardWidth*1 + 1,screen_height-cardHeight);
+
 					card[i].rear=false;//翻开
 					playerList[1].add(card[i]);
 
@@ -454,14 +515,14 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 					break;
 				case 1:
 					//右边玩家
-					card[i].setLocation(screen_width-3*cardWidth/2,i/3*cardHeight);
+
 					playerList[2].add(card[i]);
 
 					addToPlayMap3(card[i]);
 					break;
 				case 2:
 					//左边玩家
-					card[i].setLocation(cardWidth/2,i/3*cardHeight);
+
 					playerList[0].add(card[i]);
 					addToPlayMap1(card[i]);
 					break;
@@ -576,9 +637,9 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback,
 				drawBackgroundRect();
 				// 画牌
 				drawPlayer();
-				// 地主牌
-				for(int i=0,len=dizhuList.size();i<len;i++)
-					drawCard(dizhuList.get(i));
+				// 底牌
+
+				drawTopCard();
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
