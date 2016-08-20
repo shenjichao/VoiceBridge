@@ -30,7 +30,6 @@
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale"
             android:icon="@drawable/hp_ic_launcher"
             android:screenOrientation="landscape" >
-
         </activity>
         <activity android:name="com.hp.voice.ui.IatSettings" />
         <activity android:name=".ui.card.CardActivity" >
