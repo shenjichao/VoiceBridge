@@ -199,16 +199,16 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	 */
 	public void initBitMap() {
 		initCardBitmap("x_");
-		initCardBitmap("d_");
-
-		initCardBitmap("x_");
-		initCardBitmap("d_");
-
-		initCardBitmap("x_");
-		initCardBitmap("d_");
-
-		initCardBitmap("x_");
-		initCardBitmap("d_");
+//		initCardBitmap("d_");
+//
+//		initCardBitmap("x_");
+//		initCardBitmap("d_");
+//
+//		initCardBitmap("x_");
+//		initCardBitmap("d_");
+//
+//		initCardBitmap("x_");
+//		initCardBitmap("d_");
 
 		m_cardWidth = m_card[0].width;
 		m_cardHeight = m_card[0].height;
