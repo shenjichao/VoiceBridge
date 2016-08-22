@@ -1,6 +1,9 @@
 package com.hp.voice.ui.card;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import android.content.Context;
@@ -13,6 +16,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -56,7 +60,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	private int m_cellHeight;
 
 	// 图片缩小倍数
-	private int m_inSampleSize = 6;
+	private int m_inSampleSize = 5;
 
 	// 格子和牌的间隔
 	private int CELL_CARD_PADDING = 4;
@@ -66,7 +70,8 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	// 牌对象
 	private Card m_card[] = new Card[80];
 
-	private int m_count = 0;
+	public static int m_count = 0;
+	public static String m_voiceText;
 
 	// 布局背景
 	private Bitmap m_bgBitmap;
@@ -131,18 +136,18 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 		// return true;
 		// 点选牌
 		EventAction eventAction = new EventAction(this, event);
-		Card card = eventAction.getCard();
-		if (card != null) {
-			Log.i(TAG, card.name);
-			if (card.clicked)
-				card.y += card.height / 3;
-			else
-				card.y -= card.height / 3;
-			card.clicked = !card.clicked;
-			update();// 重绘
-		}
-		// 按钮事件
-		eventAction.getButton();
+		// Card card = eventAction.getCard();
+		// if (card != null) {
+		// Log.i(TAG, card.name);
+		// if (card.clicked)
+		// card.y += card.height / 3;
+		// else
+		// card.y -= card.height / 3;
+		// card.clicked = !card.clicked;
+		// update();// 重绘
+		// }
+		// // 按钮事件
+		// eventAction.getButton();
 		return true;
 	}
 
@@ -158,20 +163,26 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 		m_screenWidth = getWidth();
 		m_screenHeight = getHeight();
 		Log.d(TAG, "屏幕宽度 >> " + m_screenWidth + "|" + "屏幕高度 >> " + m_screenHeight);
+		if (m_screenWidth == 1280 && m_screenHeight == 800) {
+			m_inSampleSize = 3;
+		} else if (m_screenWidth == 1794 && m_screenHeight == 1080) {
+			m_inSampleSize = 6;
+		}
 
 		// 初始化图片
 		initBitMap();
 
-		// 开始游戏进程
-		m_gameThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				// 开始发牌
-				handCards();
-			}
-		});
-		m_gameThread.start();
+		// // 开始游戏进程
+		// m_gameThread = new Thread(new Runnable() {
+		// @Override
+		// public void run() {
+		// // 开始发牌
+		// handCards();
+		// }
+		// });
+		// m_gameThread.start();
 
+		update();
 		// 开始绘图进程
 		drawThread = new Thread(this);
 		drawThread.start();
@@ -220,58 +231,57 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	 */
 	private void initCardBitmap(String pre) {
 		for (int j = 1; j <= 10; j++) {
-			// 根据名字找出ID
-			String name = pre + j;
-			ApplicationInfo appInfo = getContext().getApplicationInfo();
-			int id = getResources().getIdentifier(name, "drawable", appInfo.packageName);
+			if (m_count < 80) {
+				// 根据名字找出ID
+				String name = pre + j;
+				ApplicationInfo appInfo = getContext().getApplicationInfo();
+				int id = getResources().getIdentifier(name, "drawable", appInfo.packageName);
 
-			// 图片宽高压缩
-			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inSampleSize = m_inSampleSize;// 图片宽高都为原来的二分之一，即图片为原来的四分之一
-			m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), id, options);
+				// 图片宽高压缩
+				BitmapFactory.Options options = new BitmapFactory.Options();
+				options.inSampleSize = m_inSampleSize;// 图片宽高都为原来的二分之一，即图片为原来的四分之一
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), id, options);
 
-			m_card[m_count] = new Card(m_cardBitmap[m_count].getWidth(), m_cardBitmap[m_count].getHeight(),
-					m_cardBitmap[m_count]);
-			// 设置Card的名字
-			m_card[m_count].setName(name);
-			// 设置Card的值
-			m_card[m_count].value = j;
-			m_count++;
+				m_card[m_count] = new Card(m_cardBitmap[m_count].getWidth(), m_cardBitmap[m_count].getHeight(),
+						m_cardBitmap[m_count]);
+				// 设置Card的名字
+				m_card[m_count].setName(name);
+				// 设置Card的值
+				m_card[m_count].value = j;
+				m_count++;
+			}
 		}
 	}
 
 	/**
 	 * 发牌
 	 */
-	private void handCards() {
-		if (m_cn == 2) {
-			for (int i = 0; i < 3; i++) {
-				playerList[i] = new Vector<Card>();
-			}
+	private void handCards(Map<Integer, String> datas) {
+		for (int m = 0; m < 3; m++) {
+			playerList[m] = new Vector<Card>();
+		}
 
-			for (int i = 0; i < 80; i++) {
+		Set<Integer> keys = datas.keySet();
+		if (null != keys && !keys.isEmpty()) {
+			for (Integer i : keys) {
 				// 庄家
-				if (i >= 0 && i <= 20) {
-					m_middleCards.add(m_card[i]);
+				if (i >= 1 && i <= 21) {
+					m_middleCards.add(m_card[i - 1]);
 				}
 				// 左边玩家
-				else if (i > 20 && i <= 40) {
-					m_leftCards.add(m_card[i]);
+				else if (i > 21 && i <= 41) {
+					m_leftCards.add(m_card[i - 1]);
 				}
 				// 右边玩家
 				else if (i > 41 && i <= 61) {
-					m_rightCards.add(m_card[i]);
+					m_rightCards.add(m_card[i - 1]);
 				}
 				// 底牌
-				else if (i > 61 && i <= 80) {
-					m_diCards.add(m_card[i]);
+				else if (i > 61 && i <= 81) {
+					m_diCards.add(m_card[i - 1]);
 				}
-
-				update();
-				sleep(100);
 			}
 		}
-
 		update();
 	}
 
@@ -310,15 +320,13 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 				// 画背景方格
 				drawBackgroundRect();
 
-				// 画牌
-				drawPlayer();
-
 				if (m_cn == 2) {
 					Log.d(TAG, "遍历...");
-					m_count = 0;
-					initCardBitmap("d_");
-					handCards();
+					show();
 				}
+
+				// 画牌
+				drawPlayer();
 			} catch (Exception e) {
 				Log.e(TAG, "Exception >> " + e.getMessage());
 			} finally {
@@ -327,6 +335,64 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 					m_surfaceHolder.unlockCanvasAndPost(m_canvas);
 			}
 		}
+	}
+
+	public void show() {
+		// 图片宽高压缩
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inSampleSize = m_inSampleSize;// 图片宽高都为原来的二分之一，即图片为原来的四分之一
+		if (!TextUtils.isEmpty(m_voiceText)) {
+			if (m_voiceText.equals("d_1"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_1, options);
+			else if (m_voiceText.equals("x_1"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_1, options);
+			else if (m_voiceText.equals("d_2"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_2, options);
+			else if (m_voiceText.equals("x_2"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_2, options);
+			else if (m_voiceText.equals("d_3"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_3, options);
+			else if (m_voiceText.equals("x_3"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_3, options);
+			else if (m_voiceText.equals("d_4"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_4, options);
+			else if (m_voiceText.equals("x_4"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_4, options);
+			else if (m_voiceText.equals("d_5"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_5, options);
+			else if (m_voiceText.equals("x_5"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_5, options);
+			else if (m_voiceText.equals("d_6"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_6, options);
+			else if (m_voiceText.equals("x_6"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_6, options);
+			else if (m_voiceText.equals("d_7"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_7, options);
+			else if (m_voiceText.equals("x_7"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_7, options);
+			else if (m_voiceText.equals("d_8"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_8, options);
+			else if (m_voiceText.equals("x_8"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_8, options);
+			else if (m_voiceText.equals("d_9"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_9, options);
+			else if (m_voiceText.equals("x_9"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_9, options);
+			else if (m_voiceText.equals("d_10"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_10, options);
+			else if (m_voiceText.equals("x_10"))
+				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_10, options);
+		}
+		m_card[m_count] = new Card(m_cardBitmap[m_count].getWidth(), m_cardBitmap[m_count].getHeight(),
+				m_cardBitmap[m_count]);
+		// 设置Card的名字
+		m_card[m_count].setName(m_voiceText);
+		// 设置Card的值
+		m_card[m_count].value = m_count + 1;
+
+		Map<Integer, String> m_datas = new HashMap<Integer, String>();
+		m_datas.put(m_count + 1, m_voiceText);
+		handCards(m_datas);
 	}
 
 	/**

@@ -2,5 +2,6 @@
 <lint>
     <issue id="ClickableViewAccessibility" severity="ignore" />
     <issue id="HandlerLeak" severity="ignore" />
+    <issue id="UseSparseArrays" severity="ignore" />
     <issue id="WrongCall" severity="ignore" />
 </lint>

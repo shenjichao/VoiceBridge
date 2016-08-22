@@ -61,6 +61,7 @@ public class HPMainActivity extends Activity implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.hp_activity_main);
 
 		m_ctx = this;
@@ -83,14 +84,14 @@ public class HPMainActivity extends Activity implements OnClickListener {
 		findViewById(R.id.hp_btn_cancel).setOnClickListener(this);
 	}
 
+	private int m_count = 0;
+
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
 		// 开始听写
 		// 如何判断一次听写结束：OnResult isLast=true 或者 onError
 		case R.id.hp_btn_start:
-			CardView.m_cn = 2;
-			CardView.m_repaint = true;
 			m_recgResults.clear();
 			// 参数设置
 			setParam();
@@ -186,54 +187,84 @@ public class HPMainActivity extends Activity implements OnClickListener {
 
 					if (result.contains("小一") || result.contains("小姨") || result.contains("小1") || result.contains("1")) {
 						Toast.makeText(m_ctx, "一", Toast.LENGTH_SHORT).show();
+						set("x_1");
 					} else if (result.contains("大一") || result.contains("大衣") || result.contains("大姨")
 							|| result.contains("大1")) {
 						Toast.makeText(m_ctx, "壹", Toast.LENGTH_SHORT).show();
+						set("d_1");
 					} else if (result.contains("小二") || result.contains("小2") || result.contains("2")) {
 						Toast.makeText(m_ctx, "二", Toast.LENGTH_SHORT).show();
+						set("x_2");
 					} else if (result.contains("大二") || result.contains("大2")) {
 						Toast.makeText(m_ctx, "贰", Toast.LENGTH_SHORT).show();
+						set("d_2");
 					} else if (result.contains("小三") || result.contains("小3") || result.contains("3")) {
 						Toast.makeText(m_ctx, "三", Toast.LENGTH_SHORT).show();
+						set("x_3");
 					} else if (result.contains("大三") || result.contains("大3")) {
 						Toast.makeText(m_ctx, "叁", Toast.LENGTH_SHORT).show();
+						set("d_3");
 					} else if (result.contains("小四") || result.contains("小事") || result.contains("小4")
 							|| result.contains("4")) {
 						Toast.makeText(m_ctx, "四", Toast.LENGTH_SHORT).show();
+						set("x_4");
 					} else if (result.contains("大四") || result.contains("大事") || result.contains("大4")) {
 						Toast.makeText(m_ctx, "肆", Toast.LENGTH_SHORT).show();
+						set("d_4");
 					} else if (result.contains("小五") || result.contains("小5") || result.contains("5")) {
 						Toast.makeText(m_ctx, "五", Toast.LENGTH_SHORT).show();
+						set("x_5");
 					} else if (result.contains("大五") || result.contains("大5")) {
 						Toast.makeText(m_ctx, "伍", Toast.LENGTH_SHORT).show();
+						set("d_5");
 					} else if (result.contains("小六") || result.contains("小6") || result.contains("6")) {
 						Toast.makeText(m_ctx, "六", Toast.LENGTH_SHORT).show();
+						set("x_6");
 					} else if (result.contains("大六") || result.contains("大6")) {
 						Toast.makeText(m_ctx, "陆", Toast.LENGTH_SHORT).show();
+						set("d_6");
 					} else if (result.contains("小七") || result.contains("小7") || result.contains("7")) {
 						Toast.makeText(m_ctx, "七", Toast.LENGTH_SHORT).show();
+						set("x_7");
 					} else if (result.contains("大七") || result.contains("大7")) {
 						Toast.makeText(m_ctx, "柒", Toast.LENGTH_SHORT).show();
+						set("d_8");
 					} else if (result.contains("小八") || result.contains("小巴") || result.contains("小8")
 							|| result.contains("8")) {
 						Toast.makeText(m_ctx, "八", Toast.LENGTH_SHORT).show();
+						set("x_8");
 					} else if (result.contains("大八") || result.contains("大巴") || result.contains("大8")) {
 						Toast.makeText(m_ctx, "捌", Toast.LENGTH_SHORT).show();
+						set("d_8");
 					} else if (result.contains("小九") || result.contains("小舅") || result.contains("小酒")
 							|| result.contains("小9") || result.contains("9")) {
 						Toast.makeText(m_ctx, "九", Toast.LENGTH_SHORT).show();
+						set("x_9");
 					} else if (result.contains("大九") || result.contains("大舅") || result.contains("大酒")
 							|| result.contains("大9")) {
 						Toast.makeText(m_ctx, "玖", Toast.LENGTH_SHORT).show();
+						set("d_9");
 					} else if (result.contains("小十") || result.contains("小时") || result.contains("小事")
 							|| result.contains("小10") || result.contains("10")) {
 						Toast.makeText(m_ctx, "十", Toast.LENGTH_SHORT).show();
+						set("x_10");
 					} else if (result.contains("大十") || result.contains("大师") || result.contains("大事")
 							|| result.contains("大10")) {
 						Toast.makeText(m_ctx, "拾", Toast.LENGTH_SHORT).show();
+						set("d_10");
 					}
 				}
 			}
+		}
+	}
+
+	private void set(String voiceText) {
+		if (m_count < 80) {
+			CardView.m_cn = 2;
+			CardView.m_repaint = true;
+			CardView.m_count = m_count;
+			CardView.m_voiceText = voiceText;
+			m_count++;
 		}
 	}
 
