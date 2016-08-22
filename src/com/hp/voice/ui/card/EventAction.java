@@ -1,9 +1,6 @@
 package com.hp.voice.ui.card;
 
-import android.util.Log;
 import android.view.MotionEvent;
-
-import java.util.List;
 
 public class EventAction {
 	/*
@@ -127,10 +124,10 @@ public class EventAction {
 		Card card = null;
 		float x = event.getX();// 触摸x坐标
 		float y = event.getY();// 触摸y坐标
-		float xoffset = view.cardWidth * 4 / 5f;
-		float yoffset = view.cardHeight;
-		if (y < view.screen_height - 4 * view.cardHeight / 3)
-			return null;
+		float xoffset = view.m_cardWidth * 4 / 5f;
+		float yoffset = view.m_cardHeight;
+//		if (y < view.m_screenHeight - 4 * view.m_cardHeight / 3)
+//			return null;
 		for (Card card2 : view.playerList[1]) {
 			if (card2.clicked) {
 				// 查询符合范围的

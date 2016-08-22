@@ -1,690 +1,644 @@
 package com.hp.voice.ui.card;
 
+import java.util.List;
+import java.util.Vector;
+
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.graphics.*;
-import android.graphics.Paint.Align;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.os.Bundle;
+import android.graphics.Rect;
 import android.os.Handler;
-import android.os.Message;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import com.hp.voice.R;
-import com.iflytek.thirdparty.P;
 
-import java.util.*;
+import com.hp.voice.R;
 
 /*
 
  * 转载此程序须保留版权,未经作者允许不能用作商业用途!
  * */
-public class CardView extends SurfaceView implements SurfaceHolder.Callback,
-		Runnable {
+public class CardView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
 
-	public final static int inSampleSize = 4; //图片缩小倍数
+	private String TAG = CardView.class.getName();
 
-	public final static int PADDING_TOP = 10;
-	public final static int PADDING_LEFT = 5;
-	public final static int PADDING_RIGHT = 5;
-	public final static int PADDING_BOTTOM = 10;
+	private int PADDING_TOP = 10;
+	private int PADDING_LEFT = 5;
+	private int PADDING_RIGHT = 5;
+	private int PADDING_BOTTOM = 10;
 
-	public final static int CELL_NUM = 10;//横向格子数目   要求双数  单数会有问题
-	public final static int CELL_NUM_RED = 4;//红色竖向数
-	public final static int CELL_NUM_GREEN = 1;//绿色竖向数
-	public final static int CELL_NUM_BLUE = 1;//蓝色竖向数
-	public final static int CELL_NUM_YELLOW = 2;//黄色竖向数
+	public final static int CELL_NUM = 10;// 横向格子数目 要求双数 单数会有问题
+	private int CELL_NUM_RED = 4;// 红色竖向数
+	public int CELL_NUM_GREEN = 2;// 绿色竖向数
+	public final static int CELL_NUM_BLUE = 4;// 蓝色竖向数
+	public final static int CELL_NUM_YELLOW = 2;// 黄色竖向数
 
-	public final static int CELL_CARD_PADDING = 4;//格子和牌的间隔
+	private Handler m_handler;
+	private SurfaceHolder m_surfaceHolder;
 
-	//每个 格子 宽高
-	int cell_height;
-	int cell_width;
-
-	SurfaceHolder surfaceHolder;
-	Canvas canvas;
-	Boolean repaint=false;
-	Boolean start;
-	Thread gameThread,drawThread;
-	// 判断当前是否要牌
-	int []flag=new int[3];
 	// 屏幕宽度和高度
-	int screen_height;
-	int screen_width;
-	// 图片资源
-	Bitmap cardBitmap[] = new Bitmap[80];
-	Bitmap bgBitmap;    //背景
-	Bitmap cardBgBitmap;//图片背面
+	public int m_screenWidth;
+	public int m_screenHeight;
 
-	// 基本参数
-	int cardWidth, cardHeight;
+	// 卡牌宽度和高度
+	public int m_cardWidth;
+	public int m_cardHeight;
 
+	// 每个格子宽高
+	private int m_cellWidth;
+	private int m_cellHeight;
+
+	// 图片缩小倍数
+	private int m_inSampleSize = 6;
+
+	// 格子和牌的间隔
+	private int CELL_CARD_PADDING = 4;
+
+	// 图片资源，总共80张牌
+	private Bitmap m_cardBitmap[] = new Bitmap[80];
 	// 牌对象
-	Card card[] = new Card[80];
+	private Card m_card[] = new Card[80];
 
-	//画笔
-	private Paint paint;
-	//按钮
-	String buttonText[]=new String[2];
-	//提示
-	String message[]=new String[3];
-	boolean hideButton=true;
-	// List
-	List<Card> playerList[]=new Vector[3];
+	private int m_count = 0;
 
+	// 布局背景
+	private Bitmap m_bgBitmap;
 
-	LinkedHashMap<Integer,Vector<Card>> playerCardMap1 = new LinkedHashMap<Integer,Vector<Card>>();
-	LinkedHashMap<Integer,Vector<Card>> playerCardMap2 = new LinkedHashMap<Integer,Vector<Card>>();
-	LinkedHashMap<Integer,Vector<Card>> playerCardMap3 = new LinkedHashMap<Integer,Vector<Card>>();
+	// 画笔
+	private Paint m_paint;
+	// 画布
+	private Canvas m_canvas;
 
-	//底牌
-	List<Card> dizhuList=new Vector<Card>();
-	//谁是地主
-	int dizhuFlag=-1;
-	//轮流
-	int turn=-1;
-	//已出牌表
-	List<Card> outList[]=new Vector[3];
-	Handler handler;
-	// 构造函数
+	// 游戏线程
+	private Thread m_gameThread;
+	// 绘图线程
+	private Thread drawThread;
+
+	// 选手列表
+	@SuppressWarnings("unchecked")
+	public List<Card> playerList[] = new Vector[3];
+
+	// 底牌
+	private List<Card> m_diCards = new Vector<Card>();
+	private List<Card> m_middleCards = new Vector<Card>();
+	private List<Card> m_leftCards = new Vector<Card>();
+	private List<Card> m_rightCards = new Vector<Card>();
+
+	// 是否开始绘制
+	private boolean m_start = false;
+	// 是否重新绘制
+	public static boolean m_repaint = false;
+
+	// 判断当前是否要牌
+	int[] flag = new int[3];
+
+	// 已出牌表
+	List<Card> outList[] = new Vector[3];
+
+	public static int m_cn = 1;
+
+	/**
+	 * 构造函数
+	 * 
+	 * @param context
+	 * @param handler
+	 */
 	public CardView(Context context, Handler handler) {
 		super(context);
-		this.handler=handler;
-		surfaceHolder = this.getHolder();
-		surfaceHolder.addCallback(this);
-	}
-	int count=0;
-
-	// 初始化图片,参数
-	public void InitBitMap() {
-		for(int i=0;i<3;i++)
-			flag[i]=0;
-		dizhuFlag=-1;
-		turn=-1;
-
-		initCardBitmap("x_");
-		initCardBitmap("d_");
-
-		initCardBitmap("x_");
-		initCardBitmap("d_");
-
-		initCardBitmap("x_");
-		initCardBitmap("d_");
-
-		initCardBitmap("x_");
-		initCardBitmap("d_");
-
-
-		cardWidth=card[0].width;
-		cardHeight=card[0].height;
-
-		cell_height = cardWidth+CELL_CARD_PADDING;
-		cell_width = cardHeight+CELL_CARD_PADDING;
-
-
-		//背景
-		bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.bg);
-		cardBgBitmap= BitmapFactory.decodeResource(getResources(), R.drawable.cardbg1);
-
-		paint = new Paint();
-
+		this.m_handler = handler;
+		this.m_surfaceHolder = this.getHolder();
+		this.m_surfaceHolder.addCallback(this);
 	}
 
-	private void initCardBitmap(String pre) {
-		for (int j = 1; j <= 10; j++) {
-			//根据名字找出ID
-			String name = pre + j;
-			ApplicationInfo appInfo = getContext().getApplicationInfo();
-			int id = getResources().getIdentifier(name, "drawable",
-					appInfo.packageName);
+	public CardView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		this.m_surfaceHolder = this.getHolder();
+		this.m_surfaceHolder.addCallback(this);
+	}
 
-			//图片宽高压缩
-			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inSampleSize = inSampleSize;//图片宽高都为原来的二分之一，即图片为原来的四分之一
-			cardBitmap[count] = BitmapFactory.decodeResource(getResources(),id,options);
-
-			card[count] = new Card(cardBitmap[count].getWidth(),cardBitmap[count].getHeight(), cardBitmap[count]);
-			//设置Card的名字
-			card[count].setName(name);
-			//设置Card的值
-			card[count].value = j;
-			count++;
+	// 触摸事件
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		// // 只接受按下事件
+		// if (event.getAction() != MotionEvent.ACTION_UP)
+		// return true;
+		// 点选牌
+		EventAction eventAction = new EventAction(this, event);
+		Card card = eventAction.getCard();
+		if (card != null) {
+			Log.i(TAG, card.name);
+			if (card.clicked)
+				card.y += card.height / 3;
+			else
+				card.y -= card.height / 3;
+			card.clicked = !card.clicked;
+			update();// 重绘
 		}
-	}
-	// 画背景
-	public void drawBackground() {
-		Rect src = new Rect(0, 0, bgBitmap.getWidth()*3 / 4,
-				2*bgBitmap.getHeight() / 3);
-		Rect dst = new Rect(0, 0, screen_width, screen_height);
-		canvas.drawBitmap(bgBitmap, src, dst, null);
-	}
-
-	//画背景格
-	public void drawBackgroundRect() {
-		drawBackgroundRectLeft();
-
-		drawBackgroundRectCenter();
-		drawBackgroundRectRight();
-
-		drawBackgroundRectTop();
-
-	}
-
-	public void drawBackgroundRectTop() {
-		//画红色矩形
-		paint.setStyle(Style.FILL);//实心矩形框
-		paint.setColor(Color.YELLOW);
-		Rect dst = new Rect(
-				screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0),
-				PADDING_TOP  ,
-				screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
-				PADDING_TOP + cell_height * 2
-		);
-		canvas.drawRect(dst, paint);
-
-
-
-		//画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
-		paint.setColor(Color.BLACK);
-
-		// 竖线
-		for(int i = 0 ; i < CELL_NUM ; i++){
-			canvas.drawLine(
-					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0) + i * cell_width,
-					PADDING_TOP ,
-					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0) + i * cell_width,
-					PADDING_TOP + cell_height * CELL_NUM_YELLOW,
-					paint
-			);
-		}
-
-		//横线
-		for(int i = 0 ; i <  CELL_NUM_YELLOW; i++){
-			canvas.drawLine(
-					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0),
-					PADDING_TOP + cell_height * i,
-					screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
-					PADDING_TOP + cell_height * i,
-					paint
-			);
-		}
-	}
-
-	public void drawBackgroundRectLeft() {
-
-		//画红色矩形
-		paint.setStyle(Style.FILL);//实心矩形框
-		paint.setColor(Color.RED);
-		Rect dst = new Rect(
-				PADDING_LEFT,
-				PADDING_TOP,
-				PADDING_LEFT + cell_width * CELL_NUM_RED,
-				PADDING_TOP + CELL_NUM * cell_height
-		);
-		canvas.drawRect(dst, paint);
-
-		//画绿色矩形
-		paint.setStyle(Style.FILL);//实心矩形框
-		paint.setColor(Color.GREEN);
-		dst = new Rect(
-				PADDING_LEFT + cell_width * CELL_NUM_RED,
-				PADDING_TOP,
-				PADDING_LEFT + cell_width * CELL_NUM_RED + cell_width * CELL_NUM_GREEN,
-				PADDING_TOP + CELL_NUM * cell_height
-		);
-		canvas.drawRect(dst, paint);
-
-
-		//画蓝色矩形
-		paint.setStyle(Style.FILL);//实心矩形框
-		paint.setColor(Color.BLUE);
-		dst = new Rect(
-				PADDING_LEFT + cell_width * CELL_NUM_RED + cell_width * CELL_NUM_GREEN,
-				PADDING_TOP,
-				PADDING_LEFT + cell_width * CELL_NUM_RED + cell_width * CELL_NUM_GREEN + cell_width * CELL_NUM_BLUE,
-				PADDING_TOP + CELL_NUM * cell_height
-		);
-		canvas.drawRect(dst, paint);
-
-
-		//画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
-		paint.setColor(Color.BLACK);
-
-		// 竖线
-		for(int i = 0 ; i < CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE ; i++){
-			canvas.drawLine(
-					PADDING_LEFT + i * cell_width,
-					PADDING_TOP ,
-					PADDING_LEFT + i * cell_width,
-					PADDING_TOP + CELL_NUM * cell_height,
-					paint
-			);
-		}
-
-		//横线
-		for(int i = 0 ; i < CELL_NUM ; i++){
-			canvas.drawLine(
-					PADDING_LEFT ,
-					PADDING_TOP + i * cell_height,
-					PADDING_LEFT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * cell_width,
-					PADDING_TOP + i * cell_height,
-					paint
-			);
-		}
-
-	}
-
-	public void drawBackgroundRectCenter() {
-		//画红色矩形
-		paint.setStyle(Style.FILL);//实心矩形框
-		paint.setColor(Color.RED);
-		Rect dst = new Rect(
-				screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0),
-				screen_height - (PADDING_BOTTOM + (CELL_NUM_RED) * cell_height) ,
-				screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
-				screen_height - PADDING_BOTTOM
-		);
-		canvas.drawRect(dst, paint);
-
-		//画绿色矩形
-		paint.setStyle(Style.FILL);//实心矩形框
-		paint.setColor(Color.GREEN);
-		dst = new Rect(
-				screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0),
-				screen_height - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN)  * cell_height),
-				screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
-				screen_height - (PADDING_BOTTOM + cell_height * CELL_NUM_RED)
-		);
-		canvas.drawRect(dst, paint);
-
-
-		//画蓝色矩形
-		paint.setStyle(Style.FILL);//实心矩形框
-		paint.setColor(Color.BLUE);
-		dst = new Rect(
-				screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0),
-				screen_height - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE)  * cell_height),
-				screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
-				screen_height - (PADDING_BOTTOM + cell_height * (CELL_NUM_RED + CELL_NUM_GREEN))
-		);
-		canvas.drawRect(dst, paint);
-
-
-		//画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
-		paint.setColor(Color.BLACK);
-
-		// 竖线
-		for(int i = 0 ; i < CELL_NUM ; i++){
-			canvas.drawLine(
-					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0) + i * cell_width,
-					screen_height - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE)  * cell_height) ,
-					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0) + i * cell_width,
-					screen_height -PADDING_BOTTOM,
-					paint
-			);
-		}
-
-		//横线
-		for(int i = 0 ; i <  CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE; i++){
-			canvas.drawLine(
-					screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0)  ,
-					screen_height - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE)  * cell_height) + i * cell_height,
-					screen_width / 2 + (int)(cell_width * CELL_NUM / 2.0),
-					screen_height - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE)  * cell_height) + i * cell_height,
-					paint
-			);
-		}
-	}
-
-	public void drawBackgroundRectRight() {
-		//画红色矩形
-		paint.setStyle(Style.FILL);//实心矩形框
-		paint.setColor(Color.RED);
-		Rect dst = new Rect(
-				screen_width - (PADDING_RIGHT + CELL_NUM_RED * cell_width) ,
-				PADDING_TOP,
-				screen_width - PADDING_RIGHT ,
-				PADDING_TOP + CELL_NUM * cell_height
-		);
-		canvas.drawRect(dst, paint);
-
-		//画绿色矩形
-		paint.setStyle(Style.FILL);//实心矩形框
-		paint.setColor(Color.GREEN);
-		dst = new Rect(
-				screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN) * cell_width),
-				PADDING_TOP,
-				screen_width - (PADDING_RIGHT + CELL_NUM_RED * cell_width),
-				PADDING_TOP + CELL_NUM * cell_height
-		);
-		canvas.drawRect(dst, paint);
-
-
-		//画蓝色矩形
-		paint.setStyle(Style.FILL);//实心矩形框
-		paint.setColor(Color.BLUE);
-		dst = new Rect(
-				screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * cell_width),
-				PADDING_TOP,
-				screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN) * cell_width),
-				PADDING_TOP + CELL_NUM * cell_height
-		);
-		canvas.drawRect(dst, paint);
-
-
-		//画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
-		paint.setColor(Color.BLACK);
-
-		// 竖线
-		for(int i = 0 ; i < CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE ; i++){
-			canvas.drawLine(
-					screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * cell_width) + i * cell_width ,
-					PADDING_TOP ,
-					screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * cell_width) + i * cell_width ,
-					PADDING_TOP + CELL_NUM * cell_height,
-					paint
-			);
-		}
-
-		//横线
-		for(int i = 0 ; i < CELL_NUM ; i++){
-			canvas.drawLine(
-					screen_width - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * cell_width) ,
-					PADDING_TOP + i * cell_height,
-					screen_width - PADDING_RIGHT,
-					PADDING_TOP + i * cell_height,
-					paint
-			);
-		}
-	}
-
-	// 玩家牌
-	public void drawPlayer(){
-		drawLeftPlayer();
-		drawRightPlayer();
-		drawCenterPlayer();
-	}
-
-	private void drawCenterPlayer() {
-		//画中间的
-		int i = 0  ;
-		for(Map.Entry<Integer,Vector<Card>> entry : playerCardMap2.entrySet()){
-			int j = 0;
-			for(Card card : entry.getValue()){
-				card.setLocation(
-						screen_width / 2 - (int)(cell_width * CELL_NUM / 2.0) + i*(cardWidth + CELL_CARD_PADDING) + CELL_CARD_PADDING/2,
-						screen_height-((cardHeight + CELL_CARD_PADDING )*(j+1) + PADDING_BOTTOM - CELL_CARD_PADDING/2));
-				drawCard(card);
-				j ++;
-			}
-			i++;
-		}
-	}
-
-	private void drawRightPlayer() {
-		//画右边的
-		int i = 0  ;
-		for(Map.Entry<Integer,Vector<Card>> entry : playerCardMap3.entrySet()){
-			int j = 0;
-			for(Card card : entry.getValue()){
-				card.setLocation(
-						screen_width-(cardWidth + CELL_CARD_PADDING/2 + j*(cardWidth + CELL_CARD_PADDING) + PADDING_RIGHT) ,
-						i*(cardHeight+CELL_CARD_PADDING)+CELL_CARD_PADDING/2+PADDING_TOP)
-				;
-				drawCard(card);
-				j ++;
-			}
-			i++;
-		}
-	}
-
-	private void drawLeftPlayer() {
-		//画左边的
-		int i = 0  ;
-		for(Map.Entry<Integer,Vector<Card>> entry : playerCardMap1.entrySet()){
-			int j = 0;
-			for(Card card : entry.getValue()){
-				card.setLocation(
-						PADDING_LEFT+CELL_CARD_PADDING/2+ j*(cardWidth+CELL_CARD_PADDING),
-						PADDING_TOP +CELL_CARD_PADDING/2 + i*(cardHeight+CELL_CARD_PADDING )
-				);
-				drawCard(card);
-				j ++;
-			}
-			i++;
-		}
-	}
-
-
-
-	private void drawTopCard() {
-		//画头部的
-		for(int i=0,len=dizhuList.size();i<len;i++) {
-			if(i<10){
-				dizhuList.get(i).setLocation(screen_width/2-(5-i)*(cardWidth + CELL_CARD_PADDING) *1 + CELL_CARD_PADDING/2,PADDING_TOP +CELL_CARD_PADDING/2);
-				drawCard(dizhuList.get(i));
-			}else if(i<20){
-				dizhuList.get(i).setLocation(screen_width/2-((5-(i-10))*(cardWidth + CELL_CARD_PADDING))*1 + CELL_CARD_PADDING/2,PADDING_TOP + cardHeight + CELL_CARD_PADDING +CELL_CARD_PADDING/2);
-				drawCard(dizhuList.get(i));
-			}else {
-
-			}
-
-		}
-	}
-
-	//画牌
-	public void drawCard(Card card){
-		Bitmap tempbitBitmap;
-
-		tempbitBitmap=card.bitmap;
-
-		canvas.drawBitmap(tempbitBitmap, card.getSRC(),
-				card.getDST(), null);
-	}
-	//发牌
-	public void handCards(){
-		//开始发牌
-		int t=0;
-		for(int i=0;i<3;i++){
-			playerList[i]=new Vector<Card>();
-		}
-		for(int i=0;i<80;i++)
-		{
-			if(i>60)//底牌
-			{
-				//放置底牌
-//				card[i].setLocation(screen_width/2-(3*i-155)*cardWidth/2,0);
-				dizhuList.add(card[i]);
-
-
-				update();
-				continue;
-			}
-			switch ((t++)%3) {
-				case 0:
-
-					//我
-
-					card[i].rear=false;//翻开
-					playerList[1].add(card[i]);
-
-					addToPlayMap2(card[i]);
-					break;
-				case 1:
-					//右边玩家
-
-					playerList[2].add(card[i]);
-
-					addToPlayMap3(card[i]);
-					break;
-				case 2:
-					//左边玩家
-
-					playerList[0].add(card[i]);
-					addToPlayMap1(card[i]);
-					break;
-			}
-			update();
-			Sleep(100);
-		}
-
-		//打开按钮
-		hideButton=false;
-		update();
-	}
-
-	private void addToPlayMap1(Card card) {
-		if(playerCardMap1.containsKey(card.value)){
-            playerCardMap1.get(card.value).add(card);
-        }else {
-            Vector<Card> vector = new Vector<>();
-            vector.add(card);
-            playerCardMap1.put(card.value,vector);
-        }
-	}
-
-	private void addToPlayMap2(Card card) {
-		if(playerCardMap2.containsKey(card.value)){
-			playerCardMap2.get(card.value).add(card);
-		}else {
-			Vector<Card> vector = new Vector<>();
-			vector.add(card);
-			playerCardMap2.put(card.value,vector);
-		}
-	}
-
-	private void addToPlayMap3(Card card) {
-		if(playerCardMap3.containsKey(card.value)){
-			playerCardMap3.get(card.value).add(card);
-		}else {
-			Vector<Card> vector = new Vector<>();
-			vector.add(card);
-			playerCardMap3.put(card.value,vector);
-		}
-	}
-
-	//sleep();
-	public void Sleep(long i){
-		try {
-			Thread.sleep(i);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	//下一个玩家
-	public void nextTurn(){
-		turn=(turn+1)%3;
+		// 按钮事件
+		eventAction.getButton();
+		return true;
 	}
 
 	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-							   int height) {
+	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		start=true;
-		screen_height = getHeight();
-		screen_width = getWidth();
+		m_start = true;
+		Log.d(TAG, "开始绘制 m_start >> " + m_start);
 
+		m_screenWidth = getWidth();
+		m_screenHeight = getHeight();
+		Log.d(TAG, "屏幕宽度 >> " + m_screenWidth + "|" + "屏幕高度 >> " + m_screenHeight);
 
-		// 初始化
-		InitBitMap();
+		// 初始化图片
+		initBitMap();
 
 		// 开始游戏进程
-		gameThread=new Thread(new Runnable() {
+		m_gameThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				//开始发牌
+				// 开始发牌
 				handCards();
 			}
 		});
-		gameThread.start();
+		m_gameThread.start();
+
 		// 开始绘图进程
-		drawThread=new Thread(this);
+		drawThread = new Thread(this);
 		drawThread.start();
 	}
+
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		start=false;
+		// m_start = false;
+		Log.d(TAG, "结束绘制 m_start >> " + m_start);
 	}
-	//主要绘图线程
+
+	/**
+	 * 初始化图片
+	 */
+	public void initBitMap() {
+		initCardBitmap("x_");
+		initCardBitmap("d_");
+
+		initCardBitmap("x_");
+		initCardBitmap("d_");
+
+		initCardBitmap("x_");
+		initCardBitmap("d_");
+
+		initCardBitmap("x_");
+		initCardBitmap("d_");
+
+		m_cardWidth = m_card[0].width;
+		m_cardHeight = m_card[0].height;
+		Log.d(TAG, "卡牌宽度 >> " + m_cardWidth + "|" + "高度 >> " + m_cardHeight);
+
+		m_cellWidth = m_cardHeight + CELL_CARD_PADDING;
+		m_cellHeight = m_cardWidth + CELL_CARD_PADDING;
+		Log.d(TAG, "每个格子的宽度 >> " + m_cellWidth + "|" + "高度 >> " + m_cellHeight);
+
+		// 背景
+		m_bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.bg);
+
+		m_paint = new Paint();
+	}
+
+	/**
+	 * 初始化卡牌图片
+	 * 
+	 * @param pre
+	 */
+	private void initCardBitmap(String pre) {
+		for (int j = 1; j <= 10; j++) {
+			// 根据名字找出ID
+			String name = pre + j;
+			ApplicationInfo appInfo = getContext().getApplicationInfo();
+			int id = getResources().getIdentifier(name, "drawable", appInfo.packageName);
+
+			// 图片宽高压缩
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inSampleSize = m_inSampleSize;// 图片宽高都为原来的二分之一，即图片为原来的四分之一
+			m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), id, options);
+
+			m_card[m_count] = new Card(m_cardBitmap[m_count].getWidth(), m_cardBitmap[m_count].getHeight(),
+					m_cardBitmap[m_count]);
+			// 设置Card的名字
+			m_card[m_count].setName(name);
+			// 设置Card的值
+			m_card[m_count].value = j;
+			m_count++;
+		}
+	}
+
+	/**
+	 * 发牌
+	 */
+	private void handCards() {
+		if (m_cn == 2) {
+			for (int i = 0; i < 3; i++) {
+				playerList[i] = new Vector<Card>();
+			}
+
+			for (int i = 0; i < 80; i++) {
+				// 庄家
+				if (i >= 0 && i <= 20) {
+					m_middleCards.add(m_card[i]);
+				}
+				// 左边玩家
+				else if (i > 20 && i <= 40) {
+					m_leftCards.add(m_card[i]);
+				}
+				// 右边玩家
+				else if (i > 41 && i <= 61) {
+					m_rightCards.add(m_card[i]);
+				}
+				// 底牌
+				else if (i > 61 && i <= 80) {
+					m_diCards.add(m_card[i]);
+				}
+
+				update();
+				sleep(100);
+			}
+		}
+
+		update();
+	}
+
+	/**
+	 * 更新画布内容
+	 */
+	private void update() {
+		m_repaint = true;
+	}
+
+	/**
+	 * 绘图线程
+	 */
 	@Override
 	public void run() {
-		while (start) {
-			if(repaint)
-			{
+		while (m_start) {
+			if (m_repaint) {
 				onDraw();
-				repaint=false;
-				Sleep(33);
+				m_repaint = false;
+				sleep(30);
 			}
 		}
 	}
-	//画图函数
-	public void onDraw(){
-		//枷锁
-		synchronized (surfaceHolder) {
+
+	/**
+	 * 画图
+	 */
+	private void onDraw() {
+		synchronized (m_surfaceHolder) {
 			try {
-				canvas = surfaceHolder.lockCanvas();
+				// 加锁
+				m_canvas = m_surfaceHolder.lockCanvas();
 				// 画背景
 				drawBackground();
+
 				// 画背景方格
 				drawBackgroundRect();
+
 				// 画牌
 				drawPlayer();
-				// 底牌
 
-				drawTopCard();
+				if (m_cn == 2) {
+					Log.d(TAG, "遍历...");
+					m_count = 0;
+					initCardBitmap("d_");
+					handCards();
+				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				Log.e(TAG, "Exception >> " + e.getMessage());
 			} finally {
-				if (canvas != null)
-					surfaceHolder.unlockCanvasAndPost(canvas);
+				// 解锁
+				if (m_surfaceHolder != null && m_canvas != null)
+					m_surfaceHolder.unlockCanvasAndPost(m_canvas);
 			}
 		}
 	}
-	//更新函数
-	public void update(){
-		repaint=true;
-	}
-	//触摸事件
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		//只接受按下事件
-		if(event.getAction()!= MotionEvent.ACTION_UP)
-			return true;
-		//点选牌
-		EventAction eventAction=new EventAction(this,event);
-		Card card=eventAction.getCard();
-		if(card!=null)
-		{
-			Log.i("mylog", card.name);
-			if(card.clicked)
-				card.y+=card.height/3;
-			else
-				card.y-=card.height/3;
-			card.clicked=!card.clicked;
-			update();//重绘
-		}
-		//按钮事件
-		eventAction.getButton();
-		return true;
-	}
-	//计时器
-	public void setTimer(int t,int flag)
-	{
-		while(t-->0){
-			Sleep(1000);
-			message[flag]=t+"";
-			update();
-		}
-		message[flag]="";
+
+	/**
+	 * 画背景
+	 */
+	private void drawBackground() {
+		Rect src = new Rect(0, 0, m_bgBitmap.getWidth() * 3 / 4, 2 * m_bgBitmap.getHeight() / 3);
+		Rect dst = new Rect(0, 0, m_screenWidth, m_screenHeight);
+		m_canvas.drawBitmap(m_bgBitmap, src, dst, null);
 	}
 
+	/**
+	 * 画背景格
+	 */
+	private void drawBackgroundRect() {
+		drawBackgroundRectLeft();
+		drawBackgroundRectCenter();
+		drawBackgroundRectRight();
+		drawBackgroundRectTop();
+	}
+
+	/**
+	 * 画左边
+	 */
+	private void drawBackgroundRectLeft() {
+		m_paint.setStyle(Style.FILL);// 实心矩形框
+		m_paint.setColor(Color.RED);// 画红色矩形
+		Rect dst = new Rect(PADDING_LEFT, PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0),
+				PADDING_LEFT + m_cellWidth * CELL_NUM_RED, PADDING_TOP + m_screenHeight / 2
+						+ (int) (m_cellHeight * CELL_NUM / 2.0));
+		m_canvas.drawRect(dst, m_paint);
+
+		m_paint.setStyle(Style.FILL);// 实心矩形框
+		m_paint.setColor(Color.GREEN);// 画绿色矩形
+		dst = new Rect(PADDING_LEFT + m_cellWidth * CELL_NUM_RED, PADDING_TOP + m_screenHeight / 2
+				- (int) (m_cellHeight * CELL_NUM / 2.0), PADDING_LEFT + m_cellWidth * CELL_NUM_RED + m_cellWidth
+				* CELL_NUM_GREEN, PADDING_TOP + m_screenHeight / 2 + (int) (m_cellHeight * CELL_NUM / 2.0));
+		m_canvas.drawRect(dst, m_paint);
+
+		m_paint.setStyle(Style.FILL);// 实心矩形框
+		m_paint.setColor(Color.BLUE);// 画蓝色矩形
+		dst = new Rect(PADDING_LEFT + m_cellWidth * CELL_NUM_RED + m_cellWidth * CELL_NUM_GREEN, PADDING_TOP
+				+ m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0), PADDING_LEFT + m_cellWidth * CELL_NUM_RED
+				+ m_cellWidth * CELL_NUM_GREEN + m_cellWidth * CELL_NUM_BLUE, PADDING_TOP + m_screenHeight / 2
+				+ (int) (m_cellHeight * CELL_NUM / 2.0));
+		m_canvas.drawRect(dst, m_paint);
+
+		// 画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
+		m_paint.setColor(Color.BLACK);
+
+		// 竖线
+		for (int i = 0; i < CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE; i++) {
+			m_canvas.drawLine(PADDING_LEFT + i * m_cellWidth, PADDING_TOP + m_screenHeight / 2
+					- (int) (m_cellHeight * CELL_NUM / 2.0), PADDING_LEFT + i * m_cellWidth, PADDING_TOP
+					+ m_screenHeight / 2 + (int) (m_cellHeight * CELL_NUM / 2.0), m_paint);
+		}
+
+		// 横线
+		for (int i = 0; i < CELL_NUM; i++) {
+			m_canvas.drawLine(PADDING_LEFT, PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0)
+					+ i * m_cellHeight, PADDING_LEFT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * m_cellWidth,
+					PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + i * m_cellHeight,
+					m_paint);
+		}
+	}
+
+	/**
+	 * 画中间
+	 */
+	private void drawBackgroundRectCenter() {
+		m_paint.setStyle(Style.FILL);// 实心矩形框
+		m_paint.setColor(Color.RED);// 画红色矩形
+		Rect dst = new Rect(m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0), m_screenHeight
+				- (PADDING_BOTTOM + (CELL_NUM_RED) * m_cellHeight), m_screenWidth / 2
+				+ (int) (m_cellWidth * CELL_NUM / 2.0), m_screenHeight - PADDING_BOTTOM);
+		m_canvas.drawRect(dst, m_paint);
+
+		m_paint.setStyle(Style.FILL);// 实心矩形框
+		m_paint.setColor(Color.GREEN);// 画绿色矩形
+		dst = new Rect(m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0), m_screenHeight
+				- (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN) * m_cellHeight), m_screenWidth / 2
+				+ (int) (m_cellWidth * CELL_NUM / 2.0), m_screenHeight - (PADDING_BOTTOM + m_cellHeight * CELL_NUM_RED));
+		m_canvas.drawRect(dst, m_paint);
+
+		m_paint.setStyle(Style.FILL);// 实心矩形框
+		m_paint.setColor(Color.BLUE);// 画蓝色矩形
+		dst = new Rect(m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0), m_screenHeight
+				- (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * m_cellHeight), m_screenWidth / 2
+				+ (int) (m_cellWidth * CELL_NUM / 2.0), m_screenHeight
+				- (PADDING_BOTTOM + m_cellHeight * (CELL_NUM_RED + CELL_NUM_GREEN)));
+		m_canvas.drawRect(dst, m_paint);
+
+		// 画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
+		m_paint.setColor(Color.BLACK);
+
+		// 竖线
+		for (int i = 0; i < CELL_NUM; i++) {
+			m_canvas.drawLine(m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0) + i * m_cellWidth,
+					m_screenHeight - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * m_cellHeight),
+					m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0) + i * m_cellWidth, m_screenHeight
+							- PADDING_BOTTOM, m_paint);
+		}
+
+		// 横线
+		for (int i = 0; i < CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE; i++) {
+			m_canvas.drawLine(m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0), m_screenHeight
+					- (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * m_cellHeight) + i
+					* m_cellHeight, m_screenWidth / 2 + (int) (m_cellWidth * CELL_NUM / 2.0), m_screenHeight
+					- (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * m_cellHeight) + i
+					* m_cellHeight, m_paint);
+		}
+	}
+
+	/**
+	 * 画右边
+	 */
+	private void drawBackgroundRectRight() {
+		m_paint.setStyle(Style.FILL);// 实心矩形框
+		m_paint.setColor(Color.RED);// 画红色矩形
+		Rect dst = new Rect(m_screenWidth - (PADDING_RIGHT + CELL_NUM_RED * m_cellWidth), PADDING_TOP + m_screenHeight
+				/ 2 - (int) (m_cellHeight * CELL_NUM / 2.0), m_screenWidth - PADDING_RIGHT, PADDING_TOP
+				+ m_screenHeight / 2 + (int) (m_cellHeight * CELL_NUM / 2.0));
+		m_canvas.drawRect(dst, m_paint);
+
+		m_paint.setStyle(Style.FILL);// 实心矩形框
+		m_paint.setColor(Color.GREEN);// 画绿色矩形
+		dst = new Rect(m_screenWidth - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN) * m_cellWidth), PADDING_TOP
+				+ m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0), m_screenWidth
+				- (PADDING_RIGHT + CELL_NUM_RED * m_cellWidth), PADDING_TOP + m_screenHeight / 2
+				+ (int) (m_cellHeight * CELL_NUM / 2.0));
+		m_canvas.drawRect(dst, m_paint);
+
+		// 画蓝色矩形
+		m_paint.setStyle(Style.FILL);// 实心矩形框
+		m_paint.setColor(Color.BLUE);
+		dst = new Rect(m_screenWidth - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * m_cellWidth),
+				PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0), m_screenWidth
+						- (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN) * m_cellWidth), PADDING_TOP + m_screenHeight
+						/ 2 + (int) (m_cellHeight * CELL_NUM / 2.0));
+		m_canvas.drawRect(dst, m_paint);
+
+		// 画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
+		m_paint.setColor(Color.BLACK);
+
+		// 竖线
+		for (int i = 0; i < CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE; i++) {
+			m_canvas.drawLine(
+					m_screenWidth - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * m_cellWidth) + i
+							* m_cellWidth, PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0),
+					m_screenWidth - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * m_cellWidth) + i
+							* m_cellWidth, PADDING_TOP + m_screenHeight / 2 + (int) (m_cellHeight * CELL_NUM / 2.0),
+					m_paint);
+		}
+
+		// 横线
+		for (int i = 0; i < CELL_NUM; i++) {
+			m_canvas.drawLine(m_screenWidth
+					- (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE) * m_cellWidth), PADDING_TOP
+					+ m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + i * m_cellHeight, m_screenWidth
+					- PADDING_RIGHT, PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + i
+					* m_cellHeight, m_paint);
+		}
+	}
+
+	/**
+	 * 画顶部
+	 */
+	private void drawBackgroundRectTop() {
+		m_paint.setStyle(Style.FILL);// 实心矩形框
+		m_paint.setColor(Color.YELLOW);// 画红色矩形
+		Rect dst = new Rect(m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0), PADDING_TOP, m_screenWidth / 2
+				+ (int) (m_cellWidth * CELL_NUM / 2.0), PADDING_TOP + m_cellHeight * 2);
+		m_canvas.drawRect(dst, m_paint);
+
+		// 画线，参数一起始点的x轴位置，参数二起始点的y轴位置，参数三终点的x轴水平位置，参数四y轴垂直位置，最后一个参数为Paint 画刷对象。
+		m_paint.setColor(Color.BLACK);
+
+		// 竖线
+		for (int i = 0; i < CELL_NUM; i++) {
+			m_canvas.drawLine(m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0) + i * m_cellWidth, PADDING_TOP,
+					m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0) + i * m_cellWidth, PADDING_TOP
+							+ m_cellHeight * CELL_NUM_YELLOW, m_paint);
+		}
+
+		// 横线
+		for (int i = 0; i < CELL_NUM_YELLOW; i++) {
+			m_canvas.drawLine(m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0), PADDING_TOP + m_cellHeight * i,
+					m_screenWidth / 2 + (int) (m_cellWidth * CELL_NUM / 2.0), PADDING_TOP + m_cellHeight * i, m_paint);
+		}
+	}
+
+	/**
+	 * 画牌
+	 */
+	private void drawPlayer() {
+		drawLeftPlayer();
+		drawCenterPlayer();
+		drawRightPlayer();
+		drawTopCard();
+	}
+
+	/**
+	 * 画左边的牌
+	 */
+	private void drawLeftPlayer() {
+		for (int i = 0, len = m_leftCards.size(); i < len; i++) {
+			int x = 0;
+			int y = 0;
+			if (i < CELL_NUM) {
+				x = PADDING_LEFT + CELL_CARD_PADDING / 2;
+				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
+						+ i * (m_cardHeight + CELL_CARD_PADDING);
+			} else if (i < CELL_NUM * 2) {
+				x = PADDING_LEFT + CELL_CARD_PADDING * 3 / 2 + m_cardWidth;
+				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
+						+ (i - CELL_NUM) * (m_cardHeight + CELL_CARD_PADDING);
+			}
+
+			m_leftCards.get(i).setLocation(x, y);
+			drawCard(m_leftCards.get(i));
+		}
+	}
+
+	/**
+	 * 画中间的牌
+	 */
+	private void drawCenterPlayer() {
+		for (int i = 0, len = m_middleCards.size(); i < len; i++) {
+			int x = 0;
+			int y = 0;
+			if (i < CELL_NUM) {
+				x = m_screenWidth / 2 - (5 - i) * (m_cardWidth + CELL_CARD_PADDING) * 1 + CELL_CARD_PADDING / 2;
+				y = m_screenHeight - (PADDING_BOTTOM + m_cellHeight);
+			} else if (i < CELL_NUM * 2) {
+				x = m_screenWidth / 2 - ((5 - (i - CELL_NUM)) * (m_cardWidth + CELL_CARD_PADDING)) * 1
+						+ CELL_CARD_PADDING / 2;
+				y = m_screenHeight - (PADDING_BOTTOM + 2 * m_cardHeight + CELL_CARD_PADDING * 3 / 2);
+			} else if (i < 22) {
+				x = m_screenWidth / 2 - ((5 - (i - CELL_NUM * 2)) * (m_cardWidth + CELL_CARD_PADDING)) * 1
+						+ CELL_CARD_PADDING / 2;
+				y = m_screenHeight - (PADDING_BOTTOM + 3 * m_cardHeight + CELL_CARD_PADDING * 4 / 2);
+			}
+
+			m_middleCards.get(i).setLocation(x, y);
+			drawCard(m_middleCards.get(i));
+		}
+	}
+
+	/**
+	 * 画右边的牌
+	 */
+	private void drawRightPlayer() {
+		for (int i = 0, len = m_rightCards.size(); i < len; i++) {
+			int x = 0;
+			int y = 0;
+			if (i < CELL_NUM) {
+				x = m_screenWidth - (m_cardWidth + CELL_CARD_PADDING / 2 + PADDING_RIGHT);
+				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
+						+ i * (m_cardHeight + CELL_CARD_PADDING);
+			} else if (i < CELL_NUM * 2) {
+				x = m_screenWidth - (m_cardWidth + CELL_CARD_PADDING * 3 / 2 + m_cardWidth + PADDING_RIGHT);
+				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
+						+ (i - CELL_NUM) * (m_cardHeight + CELL_CARD_PADDING);
+			}
+
+			m_rightCards.get(i).setLocation(x, y);
+			drawCard(m_rightCards.get(i));
+		}
+	}
+
+	/**
+	 * 画底牌
+	 */
+	private void drawTopCard() {
+		for (int i = 0, len = m_diCards.size(); i < len; i++) {
+			int x;
+			int y;
+			if (i < 10) {
+				x = m_screenWidth / 2 - (5 - i) * (m_cardWidth + CELL_CARD_PADDING) * 1 + CELL_CARD_PADDING / 2;
+				y = PADDING_TOP + CELL_CARD_PADDING / 2;
+				m_diCards.get(i).setLocation(x, y);
+				drawCard(m_diCards.get(i));
+			} else if (i < 20) {
+				x = m_screenWidth / 2 - ((5 - (i - 10)) * (m_cardWidth + CELL_CARD_PADDING)) * 1 + CELL_CARD_PADDING
+						/ 2;
+				y = PADDING_TOP + m_cardHeight + CELL_CARD_PADDING + CELL_CARD_PADDING / 2;
+				m_diCards.get(i).setLocation(x, y);
+				drawCard(m_diCards.get(i));
+			}
+		}
+	}
+
+	/**
+	 * 画牌
+	 * 
+	 * @param card
+	 */
+	private void drawCard(Card card) {
+		m_canvas.drawBitmap(card.bitmap, card.getSRC(), card.getDST(), null);
+	}
+
+	/**
+	 * 休眠
+	 * 
+	 * @param i
+	 */
+	private void sleep(long i) {
+		try {
+			Thread.sleep(i);
+		} catch (InterruptedException e) {
+			Log.e(TAG, "InterruptedException >> " + e.getMessage());
+		}
+	}
 
 }

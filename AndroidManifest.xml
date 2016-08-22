@@ -28,16 +28,19 @@
         <activity
             android:name="com.hp.voice.ui.HPMainActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale"
-            android:icon="@drawable/hp_ic_launcher"
+            android:icon="@drawable/hp_ic_launcher" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" 
             android:screenOrientation="landscape" >
-        </activity>
-        <activity android:name="com.hp.voice.ui.IatSettings" />
-        <activity android:name=".ui.card.CardActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="com.hp.voice.ui.IatSettings" />
+        <activity
+            android:name=".ui.card.CardActivity"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
     </application>
 
