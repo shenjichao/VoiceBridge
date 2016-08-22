@@ -40,7 +40,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 
 	public final static int CELL_NUM = 10;// 横向格子数目 要求双数 单数会有问题
 	private int CELL_NUM_RED = 4;// 红色竖向数
-	public int CELL_NUM_GREEN = 2;// 绿色竖向数
+	public int CELL_NUM_GREEN = 1;// 绿色竖向数
 	public final static int CELL_NUM_BLUE = 4;// 蓝色竖向数
 	public final static int CELL_NUM_YELLOW = 2;// 黄色竖向数
 
