@@ -92,16 +92,14 @@ public class HPMainActivity extends Activity implements OnClickListener {
 		// 开始听写
 		// 如何判断一次听写结束：OnResult isLast=true 或者 onError
 		case R.id.hp_btn_start:
-			set("d_4");
-			
-//			m_recgResults.clear();
-//			// 参数设置
-//			setParam();
-//
-//			// 显示听写对话框
-//			m_recgDialog.setListener(m_recognizerDialogListener);
-//			m_recgDialog.show();
-//			Toast.makeText(m_ctx, R.string.text_begin, Toast.LENGTH_SHORT).show();
+			m_recgResults.clear();
+			// 参数设置
+			setParam();
+
+			// 显示听写对话框
+			m_recgDialog.setListener(m_recognizerDialogListener);
+			m_recgDialog.show();
+			Toast.makeText(m_ctx, R.string.text_begin, Toast.LENGTH_SHORT).show();
 			break;
 		// 取消听写
 		case R.id.hp_btn_cancel:
@@ -163,12 +161,15 @@ public class HPMainActivity extends Activity implements OnClickListener {
 			sb.append(m_recgResults.get(key));
 		}
 
+		Log.d(TAG, "数据前 m_result >> " + m_result);
 		if (!TextUtils.isEmpty(m_result) && m_result.equals(sb.toString())) {
 			Log.d(TAG, "数据重复");
+			m_result = "";
 			return;
 		}
 
 		m_result = sb.toString();
+		Log.d(TAG, "数据后 m_result >> " + m_result);
 
 		// ArrayList<Token> tokens =
 		// HanziToPinyin.getInstance().get(sb.toString());
@@ -203,7 +204,7 @@ public class HPMainActivity extends Activity implements OnClickListener {
 					} else if (result.contains("小三") || result.contains("小3") || result.contains("3")) {
 						Toast.makeText(m_ctx, "三", Toast.LENGTH_SHORT).show();
 						set("x_3");
-					} else if (result.contains("大三") || result.contains("大3")) {
+					} else if (result.contains("大三") || result.contains("大3") || result.contains("大山")) {
 						Toast.makeText(m_ctx, "叁", Toast.LENGTH_SHORT).show();
 						set("d_3");
 					} else if (result.contains("小四") || result.contains("小事") || result.contains("小4")
@@ -216,7 +217,7 @@ public class HPMainActivity extends Activity implements OnClickListener {
 					} else if (result.contains("小五") || result.contains("小5") || result.contains("5")) {
 						Toast.makeText(m_ctx, "五", Toast.LENGTH_SHORT).show();
 						set("x_5");
-					} else if (result.contains("大五") || result.contains("大5")) {
+					} else if (result.contains("大五") || result.contains("大5") || result.contains("大武")) {
 						Toast.makeText(m_ctx, "伍", Toast.LENGTH_SHORT).show();
 						set("d_5");
 					} else if (result.contains("小六") || result.contains("小6") || result.contains("6")) {
@@ -230,7 +231,7 @@ public class HPMainActivity extends Activity implements OnClickListener {
 						set("x_7");
 					} else if (result.contains("大七") || result.contains("大7")) {
 						Toast.makeText(m_ctx, "柒", Toast.LENGTH_SHORT).show();
-						set("d_8");
+						set("d_7");
 					} else if (result.contains("小八") || result.contains("小巴") || result.contains("小8")
 							|| result.contains("8")) {
 						Toast.makeText(m_ctx, "八", Toast.LENGTH_SHORT).show();
@@ -267,6 +268,7 @@ public class HPMainActivity extends Activity implements OnClickListener {
 			CardView.m_count = m_count;
 			CardView.m_voiceText = voiceText;
 			m_count++;
+			Log.d(TAG, "m_count >> " + m_count);
 		}
 	}
 

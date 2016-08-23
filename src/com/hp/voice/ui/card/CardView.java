@@ -300,7 +300,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 		while (m_start) {
 			if (m_repaint) {
 				onDraw();
-				m_repaint = false;
+//				m_repaint = false;
 				sleep(30);
 			}
 		}
