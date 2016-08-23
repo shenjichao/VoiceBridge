@@ -58,6 +58,9 @@ public class HPMainActivity extends Activity implements OnClickListener {
 
 	private String m_result = "";
 
+	// 多个语音结果
+	private String m_muliResult = "";
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -83,8 +86,6 @@ public class HPMainActivity extends Activity implements OnClickListener {
 		findViewById(R.id.hp_btn_start).setOnClickListener(this);
 		findViewById(R.id.hp_btn_cancel).setOnClickListener(this);
 	}
-
-	private int m_count = 0;
 
 	@Override
 	public void onClick(View view) {
@@ -182,93 +183,191 @@ public class HPMainActivity extends Activity implements OnClickListener {
 		// }
 
 		if (!TextUtils.isEmpty(sb.toString())) {
-			for (int i = 0; i < sb.toString().length();) {
-				if (i + 2 <= sb.toString().length()) {
-					String result = sb.toString().substring(i, i + 2);
-					Log.d(TAG, "result >> " + result);
-					i += 2;
+			// 每次只说两个字时
+			if (sb.toString().length() == 2) {
+				String result = sb.toString();
+				Log.d(TAG, "每次只说两个字时 result >> " + result);
+				if (result.contains("小一") || result.contains("小姨") || result.contains("小1") || result.contains("1")) {
+					Toast.makeText(m_ctx, "一", Toast.LENGTH_SHORT).show();
+					set("x_1");
+				} else if (result.contains("大一") || result.contains("大衣") || result.contains("大姨")
+						|| result.contains("大1")) {
+					Toast.makeText(m_ctx, "壹", Toast.LENGTH_SHORT).show();
+					set("d_1");
+				} else if (result.contains("小二") || result.contains("小2") || result.contains("2")) {
+					Toast.makeText(m_ctx, "二", Toast.LENGTH_SHORT).show();
+					set("x_2");
+				} else if (result.contains("大二") || result.contains("大2") || result.contains("倒二")
+						|| result.contains("代二") || result.contains("大爱")) {
+					Toast.makeText(m_ctx, "贰", Toast.LENGTH_SHORT).show();
+					set("d_2");
+				} else if (result.contains("小三") || result.contains("小3") || result.contains("3")) {
+					Toast.makeText(m_ctx, "三", Toast.LENGTH_SHORT).show();
+					set("x_3");
+				} else if (result.contains("大三") || result.contains("大3") || result.contains("大山")
+						|| result.contains("代三")) {
+					Toast.makeText(m_ctx, "叁", Toast.LENGTH_SHORT).show();
+					set("d_3");
+				} else if (result.contains("小四") || result.contains("小事") || result.contains("小4")
+						|| result.contains("4")) {
+					Toast.makeText(m_ctx, "四", Toast.LENGTH_SHORT).show();
+					set("x_4");
+				} else if (result.contains("大四") || result.contains("大事") || result.contains("大4")
+						|| result.contains("代四")) {
+					Toast.makeText(m_ctx, "肆", Toast.LENGTH_SHORT).show();
+					set("d_4");
+				} else if (result.contains("小五") || result.contains("小5") || result.contains("5")) {
+					Toast.makeText(m_ctx, "五", Toast.LENGTH_SHORT).show();
+					set("x_5");
+				} else if (result.contains("大五") || result.contains("大5") || result.contains("大武")
+						|| result.contains("代五")) {
+					Toast.makeText(m_ctx, "伍", Toast.LENGTH_SHORT).show();
+					set("d_5");
+				} else if (result.contains("小六") || result.contains("小6") || result.contains("6")) {
+					Toast.makeText(m_ctx, "六", Toast.LENGTH_SHORT).show();
+					set("x_6");
+				} else if (result.contains("大六") || result.contains("大6")) {
+					Toast.makeText(m_ctx, "陆", Toast.LENGTH_SHORT).show();
+					set("d_6");
+				} else if (result.contains("小七") || result.contains("小7") || result.contains("7")) {
+					Toast.makeText(m_ctx, "七", Toast.LENGTH_SHORT).show();
+					set("x_7");
+				} else if (result.contains("大七") || result.contains("大7")) {
+					Toast.makeText(m_ctx, "柒", Toast.LENGTH_SHORT).show();
+					set("d_7");
+				} else if (result.contains("小八") || result.contains("小巴") || result.contains("小8")
+						|| result.contains("8")) {
+					Toast.makeText(m_ctx, "八", Toast.LENGTH_SHORT).show();
+					set("x_8");
+				} else if (result.contains("大八") || result.contains("大巴") || result.contains("大8")) {
+					Toast.makeText(m_ctx, "捌", Toast.LENGTH_SHORT).show();
+					set("d_8");
+				} else if (result.contains("小九") || result.contains("小舅") || result.contains("小酒")
+						|| result.contains("小9") || result.contains("9")) {
+					Toast.makeText(m_ctx, "九", Toast.LENGTH_SHORT).show();
+					set("x_9");
+				} else if (result.contains("大九") || result.contains("大舅") || result.contains("大酒")
+						|| result.contains("大9")) {
+					Toast.makeText(m_ctx, "玖", Toast.LENGTH_SHORT).show();
+					set("d_9");
+				} else if (result.contains("小十") || result.contains("小时") || result.contains("小事")
+						|| result.contains("小10") || result.contains("10")) {
+					Toast.makeText(m_ctx, "十", Toast.LENGTH_SHORT).show();
+					set("x_10");
+				} else if (result.contains("大十") || result.contains("大师") || result.contains("大事")
+						|| result.contains("大10") || result.contains("大时") || result.contains("大市")) {
+					Toast.makeText(m_ctx, "拾", Toast.LENGTH_SHORT).show();
+					set("d_10");
+				}
+			}
+			// 每次说多个字时
+			else {
+				StringBuilder stringBuilder = new StringBuilder();
 
-					if (result.contains("小一") || result.contains("小姨") || result.contains("小1") || result.contains("1")) {
-						Toast.makeText(m_ctx, "一", Toast.LENGTH_SHORT).show();
-						set("x_1");
-					} else if (result.contains("大一") || result.contains("大衣") || result.contains("大姨")
-							|| result.contains("大1")) {
-						Toast.makeText(m_ctx, "壹", Toast.LENGTH_SHORT).show();
-						set("d_1");
-					} else if (result.contains("小二") || result.contains("小2") || result.contains("2")) {
-						Toast.makeText(m_ctx, "二", Toast.LENGTH_SHORT).show();
-						set("x_2");
-					} else if (result.contains("大二") || result.contains("大2")) {
-						Toast.makeText(m_ctx, "贰", Toast.LENGTH_SHORT).show();
-						set("d_2");
-					} else if (result.contains("小三") || result.contains("小3") || result.contains("3")) {
-						Toast.makeText(m_ctx, "三", Toast.LENGTH_SHORT).show();
-						set("x_3");
-					} else if (result.contains("大三") || result.contains("大3") || result.contains("大山")) {
-						Toast.makeText(m_ctx, "叁", Toast.LENGTH_SHORT).show();
-						set("d_3");
-					} else if (result.contains("小四") || result.contains("小事") || result.contains("小4")
-							|| result.contains("4")) {
-						Toast.makeText(m_ctx, "四", Toast.LENGTH_SHORT).show();
-						set("x_4");
-					} else if (result.contains("大四") || result.contains("大事") || result.contains("大4")) {
-						Toast.makeText(m_ctx, "肆", Toast.LENGTH_SHORT).show();
-						set("d_4");
-					} else if (result.contains("小五") || result.contains("小5") || result.contains("5")) {
-						Toast.makeText(m_ctx, "五", Toast.LENGTH_SHORT).show();
-						set("x_5");
-					} else if (result.contains("大五") || result.contains("大5") || result.contains("大武")) {
-						Toast.makeText(m_ctx, "伍", Toast.LENGTH_SHORT).show();
-						set("d_5");
-					} else if (result.contains("小六") || result.contains("小6") || result.contains("6")) {
-						Toast.makeText(m_ctx, "六", Toast.LENGTH_SHORT).show();
-						set("x_6");
-					} else if (result.contains("大六") || result.contains("大6")) {
-						Toast.makeText(m_ctx, "陆", Toast.LENGTH_SHORT).show();
-						set("d_6");
-					} else if (result.contains("小七") || result.contains("小7") || result.contains("7")) {
-						Toast.makeText(m_ctx, "七", Toast.LENGTH_SHORT).show();
-						set("x_7");
-					} else if (result.contains("大七") || result.contains("大7")) {
-						Toast.makeText(m_ctx, "柒", Toast.LENGTH_SHORT).show();
-						set("d_7");
-					} else if (result.contains("小八") || result.contains("小巴") || result.contains("小8")
-							|| result.contains("8")) {
-						Toast.makeText(m_ctx, "八", Toast.LENGTH_SHORT).show();
-						set("x_8");
-					} else if (result.contains("大八") || result.contains("大巴") || result.contains("大8")) {
-						Toast.makeText(m_ctx, "捌", Toast.LENGTH_SHORT).show();
-						set("d_8");
-					} else if (result.contains("小九") || result.contains("小舅") || result.contains("小酒")
-							|| result.contains("小9") || result.contains("9")) {
-						Toast.makeText(m_ctx, "九", Toast.LENGTH_SHORT).show();
-						set("x_9");
-					} else if (result.contains("大九") || result.contains("大舅") || result.contains("大酒")
-							|| result.contains("大9")) {
-						Toast.makeText(m_ctx, "玖", Toast.LENGTH_SHORT).show();
-						set("d_9");
-					} else if (result.contains("小十") || result.contains("小时") || result.contains("小事")
-							|| result.contains("小10") || result.contains("10")) {
-						Toast.makeText(m_ctx, "十", Toast.LENGTH_SHORT).show();
-						set("x_10");
-					} else if (result.contains("大十") || result.contains("大师") || result.contains("大事")
-							|| result.contains("大10")) {
-						Toast.makeText(m_ctx, "拾", Toast.LENGTH_SHORT).show();
-						set("d_10");
+				for (int i = 0; i < sb.toString().length();) {
+					if (i + 2 <= sb.toString().length()) {
+						String result = sb.toString().substring(i, i + 2);
+						Log.d(TAG, "每次说多个字时 result >> " + result);
+						i += 2;
+
+						if (result.contains("小一") || result.contains("小姨") || result.contains("小1")
+								|| result.contains("1")) {
+							Toast.makeText(m_ctx, "一", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "x_1" : ",x_1");
+						} else if (result.contains("大一") || result.contains("大衣") || result.contains("大姨")
+								|| result.contains("大1") || result.contains("代一")) {
+							Toast.makeText(m_ctx, "壹", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "d_1" : ",d_1");
+						} else if (result.contains("小二") || result.contains("小2") || result.contains("2")) {
+							Toast.makeText(m_ctx, "二", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "x_2" : ",x_2");
+						} else if (result.contains("大二") || result.contains("大2") || result.contains("倒二")
+								|| result.contains("代二") || result.contains("大爱")) {
+							Toast.makeText(m_ctx, "贰", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "d_2" : ",d_2");
+						} else if (result.contains("小三") || result.contains("小3") || result.contains("3")) {
+							Toast.makeText(m_ctx, "三", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "x_3" : ",x_3");
+						} else if (result.contains("大三") || result.contains("大3") || result.contains("大山")
+								|| result.contains("代三")) {
+							Toast.makeText(m_ctx, "叁", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "d_3" : ",d_3");
+						} else if (result.contains("小四") || result.contains("小事") || result.contains("小4")
+								|| result.contains("4")) {
+							Toast.makeText(m_ctx, "四", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "x_4" : ",x_4");
+						} else if (result.contains("大四") || result.contains("大事") || result.contains("大4")
+								|| result.contains("代四")) {
+							Toast.makeText(m_ctx, "肆", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "d_4" : ",d_4");
+						} else if (result.contains("小五") || result.contains("小5") || result.contains("5")) {
+							Toast.makeText(m_ctx, "五", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "x_5" : ",x_5");
+						} else if (result.contains("大五") || result.contains("大5") || result.contains("大武")
+								|| result.contains("代五")) {
+							Toast.makeText(m_ctx, "伍", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "d_5" : ",d_5");
+						} else if (result.contains("小六") || result.contains("小6") || result.contains("6")) {
+							Toast.makeText(m_ctx, "六", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "x_6" : ",x_6");
+						} else if (result.contains("大六") || result.contains("大6")) {
+							Toast.makeText(m_ctx, "陆", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "d_6" : ",d_6");
+						} else if (result.contains("小七") || result.contains("小7") || result.contains("7")) {
+							Toast.makeText(m_ctx, "七", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "x_7" : ",x_7");
+						} else if (result.contains("大七") || result.contains("大7")) {
+							Toast.makeText(m_ctx, "柒", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "d_7" : ",d_7");
+						} else if (result.contains("小八") || result.contains("小巴") || result.contains("小8")
+								|| result.contains("8")) {
+							Toast.makeText(m_ctx, "八", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "x_8" : ",x_8");
+						} else if (result.contains("大八") || result.contains("大巴") || result.contains("大8")) {
+							Toast.makeText(m_ctx, "捌", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "d_8" : ",d_8");
+						} else if (result.contains("小九") || result.contains("小舅") || result.contains("小酒")
+								|| result.contains("小9") || result.contains("9")) {
+							Toast.makeText(m_ctx, "九", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "x_9" : ",x_9");
+						} else if (result.contains("大九") || result.contains("大舅") || result.contains("大酒")
+								|| result.contains("大9")) {
+							Toast.makeText(m_ctx, "玖", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "d_9" : ",d_9");
+						} else if (result.contains("小十") || result.contains("小时") || result.contains("小事")
+								|| result.contains("小10") || result.contains("10")) {
+							Toast.makeText(m_ctx, "十", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "x_10" : ",x_10");
+						} else if (result.contains("大十") || result.contains("大师") || result.contains("大事")
+								|| result.contains("大10") || result.contains("大时") || result.contains("大市")) {
+							Toast.makeText(m_ctx, "拾", Toast.LENGTH_SHORT).show();
+							stringBuilder.append(i == 2 ? "d_10" : ",d_10");
+						}
+					} else {
+						break;
 					}
 				}
+
+				m_muliResult = stringBuilder.toString();
+				Log.d(TAG, "m_muliResult >> " + m_muliResult);
+				set(m_muliResult);
 			}
 		}
 	}
 
 	private void set(String voiceText) {
-		if (m_count < 80) {
-			CardView.m_cn = 2;
-			CardView.m_repaint = true;
-			CardView.m_count = m_count;
-			CardView.m_voiceText = voiceText;
-			m_count++;
-			Log.d(TAG, "m_count >> " + m_count);
+		if (CardView.m_count < 80) {
+			if (!TextUtils.isEmpty(voiceText)) {
+				CardView.m_cn = 2;
+				CardView.m_repaint = true;
+				CardView.m_voiceText = voiceText;
+				// if (voiceText.contains(",")) {
+				// m_count += voiceText.split(",").length;
+				// } else {
+				// m_count++;
+				// }
+				// Log.d(TAG, "m_count >> " + m_count);
+			}
 		}
 	}
 

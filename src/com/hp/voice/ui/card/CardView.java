@@ -199,16 +199,16 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	 */
 	public void initBitMap() {
 		initCardBitmap("x_");
-//		initCardBitmap("d_");
-//
-//		initCardBitmap("x_");
-//		initCardBitmap("d_");
-//
-//		initCardBitmap("x_");
-//		initCardBitmap("d_");
-//
-//		initCardBitmap("x_");
-//		initCardBitmap("d_");
+		// initCardBitmap("d_");
+		//
+		// initCardBitmap("x_");
+		// initCardBitmap("d_");
+		//
+		// initCardBitmap("x_");
+		// initCardBitmap("d_");
+		//
+		// initCardBitmap("x_");
+		// initCardBitmap("d_");
 
 		m_cardWidth = m_card[0].width;
 		m_cardHeight = m_card[0].height;
@@ -222,6 +222,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 		m_bgBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.bg);
 
 		m_paint = new Paint();
+		m_count = 0;
 	}
 
 	/**
@@ -265,24 +266,24 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 		if (null != keys && !keys.isEmpty()) {
 			for (Integer i : keys) {
 				// 庄家
-				if (i >= 1 && i <= 21) {
-					m_middleCards.add(m_card[i - 1]);
+				if (i >= 0 && i <= 20) {
+					m_middleCards.add(m_card[i]);
 				}
 				// 左边玩家
-				else if (i > 21 && i <= 41) {
-					m_leftCards.add(m_card[i - 1]);
+				else if (i > 20 && i <= 40) {
+					m_leftCards.add(m_card[i]);
 				}
 				// 右边玩家
-				else if (i > 41 && i <= 61) {
-					m_rightCards.add(m_card[i - 1]);
+				else if (i > 40 && i <= 60) {
+					m_rightCards.add(m_card[i]);
 				}
 				// 底牌
-				else if (i > 61 && i <= 81) {
-					m_diCards.add(m_card[i - 1]);
+				else if (i > 60 && i < 80) {
+					m_diCards.add(m_card[i]);
 				}
 			}
+			update();
 		}
-		update();
 	}
 
 	/**
@@ -300,7 +301,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 		while (m_start) {
 			if (m_repaint) {
 				onDraw();
-//				m_repaint = false;
+				m_repaint = false;
 				sleep(30);
 			}
 		}
@@ -323,6 +324,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 				if (m_cn == 2) {
 					Log.d(TAG, "遍历...");
 					show();
+					sleep(30);
 				}
 
 				// 画牌
@@ -341,58 +343,147 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 		// 图片宽高压缩
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inSampleSize = m_inSampleSize;// 图片宽高都为原来的二分之一，即图片为原来的四分之一
+		Log.d(TAG, "m_voiceText >> " + m_voiceText);
 		if (!TextUtils.isEmpty(m_voiceText)) {
-			if (m_voiceText.equals("d_1"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_1, options);
-			else if (m_voiceText.equals("x_1"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_1, options);
-			else if (m_voiceText.equals("d_2"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_2, options);
-			else if (m_voiceText.equals("x_2"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_2, options);
-			else if (m_voiceText.equals("d_3"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_3, options);
-			else if (m_voiceText.equals("x_3"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_3, options);
-			else if (m_voiceText.equals("d_4"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_4, options);
-			else if (m_voiceText.equals("x_4"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_4, options);
-			else if (m_voiceText.equals("d_5"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_5, options);
-			else if (m_voiceText.equals("x_5"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_5, options);
-			else if (m_voiceText.equals("d_6"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_6, options);
-			else if (m_voiceText.equals("x_6"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_6, options);
-			else if (m_voiceText.equals("d_7"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_7, options);
-			else if (m_voiceText.equals("x_7"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_7, options);
-			else if (m_voiceText.equals("d_8"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_8, options);
-			else if (m_voiceText.equals("x_8"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_8, options);
-			else if (m_voiceText.equals("d_9"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_9, options);
-			else if (m_voiceText.equals("x_9"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_9, options);
-			else if (m_voiceText.equals("d_10"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_10, options);
-			else if (m_voiceText.equals("x_10"))
-				m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_10, options);
-		}
-		m_card[m_count] = new Card(m_cardBitmap[m_count].getWidth(), m_cardBitmap[m_count].getHeight(),
-				m_cardBitmap[m_count]);
-		// 设置Card的名字
-		m_card[m_count].setName(m_voiceText);
-		// 设置Card的值
-		m_card[m_count].value = m_count + 1;
+			// 只有两个字时
+			if (!m_voiceText.contains(",")) {
+				if (m_voiceText.equals("d_1"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_1, options);
+				else if (m_voiceText.equals("x_1"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_1, options);
+				else if (m_voiceText.equals("d_2"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_2, options);
+				else if (m_voiceText.equals("x_2"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_2, options);
+				else if (m_voiceText.equals("d_3"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_3, options);
+				else if (m_voiceText.equals("x_3"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_3, options);
+				else if (m_voiceText.equals("d_4"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_4, options);
+				else if (m_voiceText.equals("x_4"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_4, options);
+				else if (m_voiceText.equals("d_5"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_5, options);
+				else if (m_voiceText.equals("x_5"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_5, options);
+				else if (m_voiceText.equals("d_6"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_6, options);
+				else if (m_voiceText.equals("x_6"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_6, options);
+				else if (m_voiceText.equals("d_7"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_7, options);
+				else if (m_voiceText.equals("x_7"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_7, options);
+				else if (m_voiceText.equals("d_8"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_8, options);
+				else if (m_voiceText.equals("x_8"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_8, options);
+				else if (m_voiceText.equals("d_9"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_9, options);
+				else if (m_voiceText.equals("x_9"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_9, options);
+				else if (m_voiceText.equals("d_10"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_10, options);
+				else if (m_voiceText.equals("x_10"))
+					m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_10, options);
 
-		Map<Integer, String> m_datas = new HashMap<Integer, String>();
-		m_datas.put(m_count + 1, m_voiceText);
-		handCards(m_datas);
+				m_card[m_count] = new Card(m_cardBitmap[m_count].getWidth(), m_cardBitmap[m_count].getHeight(),
+						m_cardBitmap[m_count]);
+				// 设置Card的名字
+				m_card[m_count].setName(m_voiceText);
+				// 设置Card的值
+				m_card[m_count].value = m_count + 1;
+
+				Map<Integer, String> m_datas = new HashMap<Integer, String>();
+				m_datas.put(m_count, m_voiceText);
+				handCards(m_datas);
+				m_count++;
+			}
+			// 当有多个字时
+			else {
+				String[] voices = m_voiceText.split(",");
+				if (null != voices) {
+					for (int i = 0; i < voices.length; i++) {
+						String voice = voices[i];
+						if (voice.equals("d_1"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_1,
+									options);
+						else if (voice.equals("x_1"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_1,
+									options);
+						else if (voice.equals("d_2"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_2,
+									options);
+						else if (voice.equals("x_2"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_2,
+									options);
+						else if (voice.equals("d_3"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_3,
+									options);
+						else if (voice.equals("x_3"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_3,
+									options);
+						else if (voice.equals("d_4"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_4,
+									options);
+						else if (voice.equals("x_4"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_4,
+									options);
+						else if (voice.equals("d_5"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_5,
+									options);
+						else if (voice.equals("x_5"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_5,
+									options);
+						else if (voice.equals("d_6"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_6,
+									options);
+						else if (voice.equals("x_6"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_6,
+									options);
+						else if (voice.equals("d_7"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_7,
+									options);
+						else if (voice.equals("x_7"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_7,
+									options);
+						else if (voice.equals("d_8"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_8,
+									options);
+						else if (voice.equals("x_8"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_8,
+									options);
+						else if (voice.equals("d_9"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_9,
+									options);
+						else if (voice.equals("x_9"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_9,
+									options);
+						else if (voice.equals("d_10"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.d_10,
+									options);
+						else if (voice.equals("x_10"))
+							m_cardBitmap[m_count] = BitmapFactory.decodeResource(getResources(), R.drawable.x_10,
+									options);
+
+						m_card[m_count] = new Card(m_cardBitmap[m_count].getWidth(), m_cardBitmap[m_count].getHeight(),
+								m_cardBitmap[m_count]);
+						// 设置Card的名字
+						m_card[m_count].setName(voice);
+						// 设置Card的值
+						m_card[m_count].value = m_count + 1;
+
+						Map<Integer, String> m_datas = new HashMap<Integer, String>();
+						m_datas.put(m_count, voice);
+						handCards(m_datas);
+						m_count++;
+					}
+
+					Log.d(TAG, "m_count >> " + m_count);
+				}
+			}
+		}
 	}
 
 	/**
