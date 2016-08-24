@@ -27,8 +27,8 @@
         android:theme="@android:style/Theme.NoTitleBar" >
         <activity
             android:name="com.hp.voice.ui.HPMainActivity"
-            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale"
-            android:icon="@drawable/hp_ic_launcher"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale|screenSize"
+            android:icon="@drawable/hp_ic_launcher" 
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <intent-filter>

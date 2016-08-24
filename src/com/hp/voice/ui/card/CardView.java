@@ -105,6 +105,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	int[] flag = new int[3];
 
 	// 已出牌表
+	@SuppressWarnings("unchecked")
 	List<Card> outList[] = new Vector[3];
 
 	public static int m_cn = 1;
@@ -153,6 +154,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+		Log.d(TAG, "width >> " + width + "|" + "height:" + height);
 	}
 
 	@Override
@@ -167,7 +169,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 			m_inSampleSize = 3;
 		} else if (m_screenWidth == 1794 && m_screenHeight == 1080) {
 			m_inSampleSize = 6;
-		}
+		} 
 
 		// 初始化图片
 		initBitMap();
@@ -483,6 +485,8 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 					Log.d(TAG, "m_count >> " + m_count);
 				}
 			}
+
+			m_cn = 1;
 		}
 	}
 

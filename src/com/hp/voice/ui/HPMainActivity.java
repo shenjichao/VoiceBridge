@@ -79,6 +79,28 @@ public class HPMainActivity extends Activity implements OnClickListener {
 		m_recgDialog = new RecognizerDialog(m_ctx, mInitListener);
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Log.d(TAG, "onResume CardView.m_cn >> " + CardView.m_cn);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Log.d(TAG, "onSaveInstanceState method executed.");
+		if (CardView.m_cn == 2) {
+			CardView.m_cn = 1;
+		}
+		Log.d(TAG, "onSaveInstanceState CardView.m_cn >> " + CardView.m_cn);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		Log.d(TAG, "onRestoreInstanceState method executed.");
+	}
+
 	/**
 	 * 初始化Layout
 	 */
