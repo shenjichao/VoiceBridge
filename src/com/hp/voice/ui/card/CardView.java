@@ -8,13 +8,8 @@ import java.util.Vector;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.Paint.Style;
-import android.graphics.Rect;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -23,13 +18,14 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import android.view.View;
 import com.hp.voice.R;
 
 /*
 
  * 转载此程序须保留版权,未经作者允许不能用作商业用途!
  * */
-public class CardView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
+public class CardView extends SurfaceView implements SurfaceHolder.Callback, Runnable{
 
 	private String TAG = CardView.class.getName();
 
@@ -39,10 +35,11 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	private int PADDING_BOTTOM = 10;
 
 	public final static int CELL_NUM = 10;// 横向格子数目 要求双数 单数会有问题
-	private int CELL_NUM_RED = 4;// 红色竖向数
-	public int CELL_NUM_GREEN = 1;// 绿色竖向数
+	public final static int CELL_NUM_RED = 4;// 红色竖向数
+	public final static int CELL_NUM_GREEN = 1;// 绿色竖向数
 	public final static int CELL_NUM_BLUE = 4;// 蓝色竖向数
 	public final static int CELL_NUM_YELLOW = 2;// 黄色竖向数
+
 
 	private Handler m_handler;
 	private SurfaceHolder m_surfaceHolder;
@@ -56,8 +53,8 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	public int m_cardHeight;
 
 	// 每个格子宽高
-	private int m_cellWidth;
-	private int m_cellHeight;
+	public int m_cellWidth;
+	public int m_cellHeight;
 
 	// 图片缩小倍数
 	private int m_inSampleSize = 5;
@@ -69,6 +66,9 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	private Bitmap m_cardBitmap[] = new Bitmap[80];
 	// 牌对象
 	private Card m_card[] = new Card[80];
+
+	//上次点击的牌位置
+	private int m_old_card_xy[] = null;
 
 	public static int m_count = 0;
 	public static String m_voiceText;
@@ -86,6 +86,8 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	// 绘图线程
 	private Thread drawThread;
 
+
+
 	// 选手列表
 	@SuppressWarnings("unchecked")
 	public List<Card> playerList[] = new Vector[3];
@@ -95,6 +97,14 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	private List<Card> m_middleCards = new Vector<Card>();
 	private List<Card> m_leftCards = new Vector<Card>();
 	private List<Card> m_rightCards = new Vector<Card>();
+
+
+	private Card[][] m_arr_diCards = new Card[CELL_NUM][CELL_NUM_YELLOW];
+	private Card[][] m_arr_midCards = new Card[CELL_NUM][CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE];
+	private Card[][] m_arr_leftCards = new Card[CELL_NUM][CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE];
+	private Card[][] m_arr_rightCards = new Card[CELL_NUM][CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE];
+
+
 
 	// 是否开始绘制
 	private boolean m_start = false;
@@ -109,6 +119,8 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	List<Card> outList[] = new Vector[3];
 
 	public static int m_cn = 1;
+
+
 
 	/**
 	 * 构造函数
@@ -129,28 +141,7 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 		this.m_surfaceHolder.addCallback(this);
 	}
 
-	// 触摸事件
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		// // 只接受按下事件
-		// if (event.getAction() != MotionEvent.ACTION_UP)
-		// return true;
-		// 点选牌
-		EventAction eventAction = new EventAction(this, event);
-		// Card card = eventAction.getCard();
-		// if (card != null) {
-		// Log.i(TAG, card.name);
-		// if (card.clicked)
-		// card.y += card.height / 3;
-		// else
-		// card.y -= card.height / 3;
-		// card.clicked = !card.clicked;
-		// update();// 重绘
-		// }
-		// // 按钮事件
-		// eventAction.getButton();
-		return true;
-	}
+
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -188,6 +179,8 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 		// 开始绘图进程
 		drawThread = new Thread(this);
 		drawThread.start();
+
+
 	}
 
 	@Override
@@ -268,20 +261,41 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 		if (null != keys && !keys.isEmpty()) {
 			for (Integer i : keys) {
 				// 庄家
-				if (i >= 0 && i <= 20) {
+				if (i >= 0 && i < 10) {
 					m_middleCards.add(m_card[i]);
+
+					m_arr_midCards[i][0] = m_card[i];
+				}
+				else if(i >= 10 && i < 20){
+					m_middleCards.add(m_card[i]);
+					m_arr_midCards[i-10][1] = m_card[i];
 				}
 				// 左边玩家
-				else if (i > 20 && i <= 40) {
+				else if (i >=20 && i < 30) {
 					m_leftCards.add(m_card[i]);
+					m_arr_leftCards[i-20][0] = m_card[i];
+				}
+				else if (i >= 30 && i < 40) {
+					m_leftCards.add(m_card[i]);
+					m_arr_leftCards[i-30][1] = m_card[i];
 				}
 				// 右边玩家
-				else if (i > 40 && i <= 60) {
+				else if (i >= 40 && i < 50) {
 					m_rightCards.add(m_card[i]);
+					m_arr_rightCards[i-40][0] = m_card[i];
+				}
+				else if (i >= 50 && i < 60) {
+					m_rightCards.add(m_card[i]);
+					m_arr_rightCards[i-50][1] = m_card[i];
 				}
 				// 底牌
-				else if (i > 60 && i < 80) {
+				else if (i >= 60 && i < 70) {
 					m_diCards.add(m_card[i]);
+					m_arr_diCards[i-60][0] = m_card[i];
+				}
+				else if (i >= 70 && i < 80) {
+					m_diCards.add(m_card[i]);
+					m_arr_diCards[i-70][1] = m_card[i];
 				}
 			}
 			update();
@@ -693,21 +707,44 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	 * 画左边的牌
 	 */
 	private void drawLeftPlayer() {
-		for (int i = 0, len = m_leftCards.size(); i < len; i++) {
-			int x = 0;
-			int y = 0;
-			if (i < CELL_NUM) {
-				x = PADDING_LEFT + CELL_CARD_PADDING / 2;
+//		for (int i = 0, len = m_leftCards.size(); i < len; i++) {
+//			int x = 0;
+//			int y = 0;
+//			if (i < CELL_NUM) {
+//				x = PADDING_LEFT + CELL_CARD_PADDING / 2;
+//				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
+//						+ i * (m_cardHeight + CELL_CARD_PADDING);
+//			} else if (i < CELL_NUM * 2) {
+//				x = PADDING_LEFT + CELL_CARD_PADDING * 3 / 2 + m_cardWidth;
+//				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
+//						+ (i - CELL_NUM) * (m_cardHeight + CELL_CARD_PADDING);
+//			}
+//
+//			m_leftCards.get(i).setLocation(x, y);
+//			drawCard(m_leftCards.get(i));
+//		}
+
+
+		for(int i = 0 ; i < CELL_NUM ; i++){
+			for( int j = 0 ; j < CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE ; j++){
+
+				if(m_arr_leftCards[i][j] == null){
+					continue;
+				}
+				int x = 0;
+				int y = 0;
+
+				x = PADDING_LEFT + CELL_CARD_PADDING / 2 + (m_cardWidth + CELL_CARD_PADDING) * j;
 				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
 						+ i * (m_cardHeight + CELL_CARD_PADDING);
-			} else if (i < CELL_NUM * 2) {
-				x = PADDING_LEFT + CELL_CARD_PADDING * 3 / 2 + m_cardWidth;
-				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
-						+ (i - CELL_NUM) * (m_cardHeight + CELL_CARD_PADDING);
+
+
+				m_arr_leftCards[i][j].setLocation(x, y);
+				drawCard(m_arr_leftCards[i][j]);
+
 			}
 
-			m_leftCards.get(i).setLocation(x, y);
-			drawCard(m_leftCards.get(i));
+
 		}
 	}
 
@@ -715,24 +752,42 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	 * 画中间的牌
 	 */
 	private void drawCenterPlayer() {
-		for (int i = 0, len = m_middleCards.size(); i < len; i++) {
-			int x = 0;
-			int y = 0;
-			if (i < CELL_NUM) {
-				x = m_screenWidth / 2 - (5 - i) * (m_cardWidth + CELL_CARD_PADDING) * 1 + CELL_CARD_PADDING / 2;
-				y = m_screenHeight - (PADDING_BOTTOM + m_cellHeight);
-			} else if (i < CELL_NUM * 2) {
-				x = m_screenWidth / 2 - ((5 - (i - CELL_NUM)) * (m_cardWidth + CELL_CARD_PADDING)) * 1
-						+ CELL_CARD_PADDING / 2;
-				y = m_screenHeight - (PADDING_BOTTOM + 2 * m_cardHeight + CELL_CARD_PADDING * 3 / 2);
-			} else if (i < 22) {
-				x = m_screenWidth / 2 - ((5 - (i - CELL_NUM * 2)) * (m_cardWidth + CELL_CARD_PADDING)) * 1
-						+ CELL_CARD_PADDING / 2;
-				y = m_screenHeight - (PADDING_BOTTOM + 3 * m_cardHeight + CELL_CARD_PADDING * 4 / 2);
-			}
+//		for (int i = 0, len = m_middleCards.size(); i < len; i++) {
+//			int x = 0;
+//			int y = 0;
+//			if (i < CELL_NUM) {
+//				x = m_screenWidth / 2 - (5 - i) * (m_cardWidth + CELL_CARD_PADDING) * 1 + CELL_CARD_PADDING / 2;
+//				y = m_screenHeight - (PADDING_BOTTOM + m_cellHeight);
+//			} else if (i < CELL_NUM * 2) {
+//				x = m_screenWidth / 2 - ((5 - (i - CELL_NUM)) * (m_cardWidth + CELL_CARD_PADDING)) * 1
+//						+ CELL_CARD_PADDING / 2;
+//				y = m_screenHeight - (PADDING_BOTTOM + 2 * m_cardHeight + CELL_CARD_PADDING * 3 / 2);
+//			} else if (i < 22) {
+//				x = m_screenWidth / 2 - ((5 - (i - CELL_NUM * 2)) * (m_cardWidth + CELL_CARD_PADDING)) * 1
+//						+ CELL_CARD_PADDING / 2;
+//				y = m_screenHeight - (PADDING_BOTTOM + 3 * m_cardHeight + CELL_CARD_PADDING * 4 / 2);
+//			}
+//
+//			m_middleCards.get(i).setLocation(x, y);
+//			drawCard(m_middleCards.get(i));
+//		}
 
-			m_middleCards.get(i).setLocation(x, y);
-			drawCard(m_middleCards.get(i));
+		for(int i = 0 ; i < CELL_NUM ; i++) {
+			for (int j = 0; j < CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE; j++) {
+
+				if(m_arr_midCards[i][j] == null){
+					continue;
+				}
+				int x = 0;
+				int y = 0;
+
+				x = m_screenWidth / 2 - (5 - i) * (m_cardWidth + CELL_CARD_PADDING) * 1 + CELL_CARD_PADDING / 2;
+				y = m_screenHeight - (PADDING_BOTTOM - CELL_CARD_PADDING/2  + (m_cellHeight ) * (j+1) );
+
+
+				m_arr_midCards[i][j].setLocation(x, y);
+				drawCard(m_arr_midCards[i][j]);
+			}
 		}
 	}
 
@@ -740,21 +795,41 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	 * 画右边的牌
 	 */
 	private void drawRightPlayer() {
-		for (int i = 0, len = m_rightCards.size(); i < len; i++) {
-			int x = 0;
-			int y = 0;
-			if (i < CELL_NUM) {
-				x = m_screenWidth - (m_cardWidth + CELL_CARD_PADDING / 2 + PADDING_RIGHT);
+//		for (int i = 0, len = m_rightCards.size(); i < len; i++) {
+//			int x = 0;
+//			int y = 0;
+//			if (i < CELL_NUM) {
+//				x = m_screenWidth - (m_cardWidth + CELL_CARD_PADDING / 2 + PADDING_RIGHT);
+//				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
+//						+ i * (m_cardHeight + CELL_CARD_PADDING);
+//			} else if (i < CELL_NUM * 2) {
+//				x = m_screenWidth - (m_cardWidth + CELL_CARD_PADDING * 3 / 2 + m_cardWidth + PADDING_RIGHT);
+//				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
+//						+ (i - CELL_NUM) * (m_cardHeight + CELL_CARD_PADDING);
+//			}
+//
+//			m_rightCards.get(i).setLocation(x, y);
+//			drawCard(m_rightCards.get(i));
+//		}
+
+
+		for(int i = 0 ; i < CELL_NUM ; i++) {
+			for (int j = 0; j < CELL_NUM_RED + CELL_NUM_GREEN + CELL_NUM_BLUE; j++) {
+
+				if(m_arr_rightCards[i][j] == null){
+					continue;
+				}
+				int x = 0;
+				int y = 0;
+
+				x = m_screenWidth - (m_cardWidth + CELL_CARD_PADDING / 2 + PADDING_RIGHT +(m_cardWidth + CELL_CARD_PADDING) * j);
 				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
 						+ i * (m_cardHeight + CELL_CARD_PADDING);
-			} else if (i < CELL_NUM * 2) {
-				x = m_screenWidth - (m_cardWidth + CELL_CARD_PADDING * 3 / 2 + m_cardWidth + PADDING_RIGHT);
-				y = PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0) + CELL_CARD_PADDING / 2
-						+ (i - CELL_NUM) * (m_cardHeight + CELL_CARD_PADDING);
-			}
 
-			m_rightCards.get(i).setLocation(x, y);
-			drawCard(m_rightCards.get(i));
+
+				m_arr_rightCards[i][j].setLocation(x, y);
+				drawCard(m_arr_rightCards[i][j]);
+			}
 		}
 	}
 
@@ -762,20 +837,40 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 	 * 画底牌
 	 */
 	private void drawTopCard() {
-		for (int i = 0, len = m_diCards.size(); i < len; i++) {
-			int x;
-			int y;
-			if (i < 10) {
+//		for (int i = 0, len = m_diCards.size(); i < len; i++) {
+//			int x;
+//			int y;
+//			if (i < 10) {
+//				x = m_screenWidth / 2 - (5 - i) * (m_cardWidth + CELL_CARD_PADDING) * 1 + CELL_CARD_PADDING / 2;
+//				y = PADDING_TOP + CELL_CARD_PADDING / 2;
+//				m_diCards.get(i).setLocation(x, y);
+//				drawCard(m_diCards.get(i));
+//			} else if (i < 20) {
+//				x = m_screenWidth / 2 - ((5 - (i - 10)) * (m_cardWidth + CELL_CARD_PADDING)) * 1 + CELL_CARD_PADDING
+//						/ 2;
+//				y = PADDING_TOP + m_cardHeight + CELL_CARD_PADDING + CELL_CARD_PADDING / 2;
+//				m_diCards.get(i).setLocation(x, y);
+//				drawCard(m_diCards.get(i));
+//			}
+//		}
+
+
+		for(int i = 0 ; i < CELL_NUM ; i++) {
+			for (int j = 0; j < CELL_NUM_YELLOW; j++) {
+
+				if(m_arr_diCards[i][j] == null){
+					continue;
+				}
+				int x = 0;
+				int y = 0;
+
 				x = m_screenWidth / 2 - (5 - i) * (m_cardWidth + CELL_CARD_PADDING) * 1 + CELL_CARD_PADDING / 2;
-				y = PADDING_TOP + CELL_CARD_PADDING / 2;
-				m_diCards.get(i).setLocation(x, y);
-				drawCard(m_diCards.get(i));
-			} else if (i < 20) {
-				x = m_screenWidth / 2 - ((5 - (i - 10)) * (m_cardWidth + CELL_CARD_PADDING)) * 1 + CELL_CARD_PADDING
-						/ 2;
-				y = PADDING_TOP + m_cardHeight + CELL_CARD_PADDING + CELL_CARD_PADDING / 2;
-				m_diCards.get(i).setLocation(x, y);
-				drawCard(m_diCards.get(i));
+				y = PADDING_TOP + CELL_CARD_PADDING / 2 + (m_cardHeight + CELL_CARD_PADDING) * j;
+
+
+				m_arr_diCards[i][j].setLocation(x, y);
+				drawCard(m_arr_diCards[i][j]);
+
 			}
 		}
 	}
@@ -800,6 +895,133 @@ public class CardView extends SurfaceView implements SurfaceHolder.Callback, Run
 		} catch (InterruptedException e) {
 			Log.e(TAG, "InterruptedException >> " + e.getMessage());
 		}
+	}
+
+	public Rect getLeftRect(){
+		return new Rect(
+				PADDING_LEFT,
+				PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0),
+				PADDING_LEFT + m_cellWidth * ( CELL_NUM_RED + CELL_NUM_GREEN +CELL_NUM_BLUE ),
+				PADDING_TOP + m_screenHeight / 2 + (int) (m_cellHeight * CELL_NUM / 2.0));
+	}
+
+	public Point getLeftPoint(){
+		return new Point(
+				PADDING_LEFT,
+				PADDING_TOP + m_screenHeight / 2 - (int) (m_cellHeight * CELL_NUM / 2.0));
+	}
+
+	public Rect getRightRect(){
+		return new Rect(
+				m_screenWidth - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN +CELL_NUM_BLUE ) * m_cellWidth),
+				PADDING_TOP + m_screenHeight/ 2 - (int) (m_cellHeight * CELL_NUM / 2.0),
+				m_screenWidth - PADDING_RIGHT,
+				PADDING_TOP+ m_screenHeight / 2 + (int) (m_cellHeight * CELL_NUM / 2.0));
+	}
+
+
+	public Point getRightPoint(){
+		return new Point(
+				m_screenWidth - (PADDING_RIGHT + (CELL_NUM_RED + CELL_NUM_GREEN +CELL_NUM_BLUE ) * m_cellWidth),
+				PADDING_TOP + m_screenHeight/ 2 - (int) (m_cellHeight * CELL_NUM / 2.0));
+	}
+
+	public Rect getCenterRect(){
+		return  new Rect(
+				m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0),
+				m_screenHeight - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN +CELL_NUM_BLUE ) * m_cellHeight),
+				m_screenWidth / 2 + (int) (m_cellWidth * CELL_NUM / 2.0),
+				m_screenHeight - PADDING_BOTTOM);
+	}
+
+
+	public Point getCenterPoint(){
+		return new Point(
+				m_screenWidth / 2 - (int) (m_cellWidth * CELL_NUM / 2.0),
+				m_screenHeight - (PADDING_BOTTOM + (CELL_NUM_RED + CELL_NUM_GREEN +CELL_NUM_BLUE ) * m_cellHeight));
+	}
+
+
+
+
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event){
+     /*
+      * 重载获得x,y把星星或者小图片会知道指定的位置
+      * bmp-》创建canvas
+      * 屏幕上应该只有一个星星
+      */
+
+		EventAction eventAction = new EventAction(this,event);
+		switch (event.getAction()){
+			case MotionEvent.ACTION_DOWN:
+				if(m_old_card_xy == null){
+					//第一次点击
+					int[] tmp= eventAction.getCard();
+					if(tmp[0] != 0){
+						//判断点击的位置 是否有牌
+						Card[][] ordCard = null;
+						if(tmp[0] == 1){
+							ordCard = m_arr_leftCards;
+						}else if(tmp[0] == 2){
+							ordCard = m_arr_rightCards;
+						}else {
+							ordCard = m_arr_midCards;
+						}
+						//判断点击的位置 是否有牌
+						if(ordCard[tmp[1]][tmp[2]] != null) {
+							m_old_card_xy = tmp;
+						}
+					}
+				}else {
+					//第二次点击
+					int[] newCard= eventAction.getCard();
+					if(newCard[0] != 0){
+						//交换
+						swapCard(m_old_card_xy,newCard);
+
+						m_old_card_xy = null;
+						update();
+
+					}else {
+						//没有点击方格里
+						m_old_card_xy = null;
+					}
+				}
+
+				break;
+		}
+
+
+		return true;
+
+	}
+
+	private void swapCard(int[] oldArr,int[] newArr){
+
+		Card[][] ordCard = null;
+		Card[][] newCard = null;
+
+		if(oldArr[0] == 1){
+			ordCard = m_arr_leftCards;
+		}else if(oldArr[0] == 2){
+			ordCard = m_arr_rightCards;
+		}else {
+			ordCard = m_arr_midCards;
+		}
+
+		if(newArr[0] == 1){
+			newCard = m_arr_leftCards;
+		}else if(newArr[0] == 2){
+			newCard = m_arr_rightCards;
+		}else {
+			newCard = m_arr_midCards;
+		}
+
+		Card tmp = ordCard[oldArr[1]][oldArr[2]];
+		ordCard[oldArr[1]][oldArr[2]] = newCard[newArr[1]][newArr[2]];
+		newCard[newArr[1]][newArr[2]] = tmp;
 	}
 
 }

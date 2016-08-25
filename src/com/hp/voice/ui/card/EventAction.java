@@ -1,5 +1,8 @@
 package com.hp.voice.ui.card;
 
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.util.Log;
 import android.view.MotionEvent;
 
 public class EventAction {
@@ -119,33 +122,34 @@ public class EventAction {
 //			}
 //		}
 	}
-	// 取出点击的是哪张牌
-	public Card getCard() {
-		Card card = null;
-		float x = event.getX();// 触摸x坐标
-		float y = event.getY();// 触摸y坐标
-		float xoffset = view.m_cardWidth * 4 / 5f;
-		float yoffset = view.m_cardHeight;
-//		if (y < view.m_screenHeight - 4 * view.m_cardHeight / 3)
-//			return null;
-		for (Card card2 : view.playerList[1]) {
-			if (card2.clicked) {
-				// 查询符合范围的
-				if ((x - card2.x > 0)
-						&& (y - card2.y > 0)
-						&& (((x - card2.x < xoffset) && (y - card2.y < yoffset)) || ((x
-						- card2.x < card2.width) && (y - card2.y < card2.height / 3)))) {
-					return card2;
-				}
-			} else {
-				// 查询符合范围的
-				if ((x - card2.x > 0) && (x - card2.x < xoffset)
-						&& (y - card2.y > 0) && (y - card2.y < yoffset)) {
-					return card2;
-				}
-			}
+
+	/**
+	 * 获取点击位置的牌位置 并转换为 在各自 二维数组的 下标
+	 * @return int[] 第一位 表示 : 1 左边数组 ,  2   右边数组 , 3  中间数组
+	 * 				  后二位 表示 :  二维数组的下标
+     */
+	public int[] getCard() {
+		int[] cardXY= new int[3];
+		int  x=(int) event.getX();
+		int y=(int) event.getY();
+		Point point = null;
+		if(view.getLeftRect().contains(x,y)){
+			cardXY[0] = 1;
+			point = view.getLeftPoint();
+			cardXY[2] = (x - point.x) / view.m_cellWidth;
+			cardXY[1] = (y - point.y) / view.m_cellHeight;
+		}else if(view.getRightRect().contains(x,y)){
+			cardXY[0] = 2;
+			point = view.getRightPoint();
+			cardXY[2] = CardView.CELL_NUM_RED + CardView.CELL_NUM_GREEN + CardView.CELL_NUM_BLUE - 1 - (x - point.x) / view.m_cellWidth;
+			cardXY[1] = (y - point.y) / view.m_cellHeight;
+		}else if(view.getCenterRect().contains(x,y)){
+			cardXY[0] = 3;
+			point = view.getCenterPoint();
+			cardXY[1] = (x - point.x) / view.m_cellWidth;
+			cardXY[2] =  CardView.CELL_NUM_RED + CardView.CELL_NUM_GREEN + CardView.CELL_NUM_BLUE - 1 - (y - point.y) / view.m_cellHeight;
 		}
 
-		return card;
+ 		return cardXY;
 	}
 }

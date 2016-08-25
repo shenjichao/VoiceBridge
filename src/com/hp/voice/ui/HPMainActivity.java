@@ -115,14 +115,17 @@ public class HPMainActivity extends Activity implements OnClickListener {
 		// 开始听写
 		// 如何判断一次听写结束：OnResult isLast=true 或者 onError
 		case R.id.hp_btn_start:
-			m_recgResults.clear();
-			// 参数设置
-			setParam();
-
-			// 显示听写对话框
-			m_recgDialog.setListener(m_recognizerDialogListener);
-			m_recgDialog.show();
-			Toast.makeText(m_ctx, R.string.text_begin, Toast.LENGTH_SHORT).show();
+//			m_recgResults.clear();
+//			// 参数设置
+//			setParam();
+//
+//			// 显示听写对话框
+//			m_recgDialog.setListener(m_recognizerDialogListener);
+//			m_recgDialog.show();
+//			Toast.makeText(m_ctx, R.string.text_begin, Toast.LENGTH_SHORT).show();
+			for(int i=0;i<80;i++){
+				set("x_2");
+			}
 			break;
 		// 取消听写
 		case R.id.hp_btn_cancel:
